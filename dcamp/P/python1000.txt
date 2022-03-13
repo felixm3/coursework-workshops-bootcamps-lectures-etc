@@ -1,0 +1,20 @@
+Python 1000
+
+1. How do I add the contents of a list into another list?
+https://stackoverflow.com/questions/5805892/how-to-insert-the-contents-of-one-list-into-another
+
+2. How do I read datafiles into Python? - Pandas
+3. What is the syntax for an if-elif-else loop?
+4. What is the syntax for a for loop?
+5. What is the syntax for a while loop?
+6. How do I find all the unique values in a pd.Series? pd.Series.unique()
+7. How do I list all methods/attributes of an object? - dir(foo)
+8. How do I get help on a method? - help(foo), foo?
+9. How do I make a histogram?
+10. How do I make a barplot?
+11. How do I make a scatterplot?
+12. How do I make a box plot?
+13. How do list comprehensions work?
+14. How do dictionary comprehensions work?
+15. How do lambda functions work?
+16. How do map and reduce work?
