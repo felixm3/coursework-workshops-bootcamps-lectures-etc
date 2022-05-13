@@ -63,7 +63,7 @@ Topics discussed cover the events that control genome maintenance: chromosome du
 37. Molecular cloning, PCR, and genome sequencing are a result of studies of DNA replication.
 38. DNA replication is frequently a target of drugs (chemotherapy, anti-virals) so important to understand to develop better drugs.
 39. E. coli cells replicate the genome in ~ 40 minutes.
-40. The substrate for DNA replication is the primer-template junction, which consists of single-stranded DNA template with a primer that has a free 3' OH (hydroxyl)
+40. The substrate for DNA replication is the primer-template junction, which consists of a single-stranded DNA template with an annealed primer that has a free 3' OH (hydroxyl)
 41. xx
 42. xx
 43. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
