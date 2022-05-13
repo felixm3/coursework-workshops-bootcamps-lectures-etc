@@ -1,4 +1,5 @@
-     
+# MITx 7.28.1x - Molecular Biology - Part 1: DNA Replication and Repair 
+
 7.28.1x is the first of a three-part lecture series on molecular biology taught by Professor Stephen Bell and Professor Tania Baker of MIT. An introductory biology course like 7.00x is a pre-requisite for this course.
 
 Topics discussed cover the events that control genome maintenance: chromosome duplication, repair, and recombination.
