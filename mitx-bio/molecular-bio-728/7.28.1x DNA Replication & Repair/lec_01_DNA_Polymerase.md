@@ -1,18 +1,3 @@
-7.28.1x is the first of a three-part lecture series on molecular biology taught by Professor Stephen Bell and Professor Tania Baker of MIT. An introductory biology course like 7.00x is a pre-requisite for this course.
-
-Topics discussed cover the events that control genome maintenance: chromosome duplication, repair, and recombination.
-- how do cells replicate their genomes?
-- how do cells repair the DNA when there's a mistake or DNA damage?
-- how do cells recombine the DNA in response to breaks, or during meiosis?
-- how does the cell accomplish the process (DNA duplication/repair/recombination)? What are the detailed molecular mechanisms?
-- what are the proteins/RNAs/DNAs required for these processes? How are these coordinated and regulated?
-- what are the similarities and differences in these processes between prokaryotic and eukaryotic cells?
-- what do we know, and what do we NOT know, about these cellular processes?
-- how did scientists discover these mechanisms?
-- what tools/assays/techniques are used to study these processes?
-- what are the failsafes in place to keep these processes from going wrong?
-- 
-
 # Lecture Notes
 
 ## Table of Contents
@@ -63,7 +48,7 @@ Topics discussed cover the events that control genome maintenance: chromosome du
 37. Molecular cloning, PCR, and genome sequencing are a result of studies of DNA replication.
 38. DNA replication is frequently a target of drugs (chemotherapy, anti-virals) so important to understand to develop better drugs.
 39. E. coli cells replicate the genome in ~ 40 minutes.
-40. The substrate for DNA replication is the primer-template junction, which consists of single-stranded DNA template with a primer that has a free 3' OH (hydroxyl)
+40. The substrate for DNA replication is the primer-template junction, which consists of a single-stranded DNA template with an annealed primer that has a free 3' OH (hydroxyl)
 41. xx
 42. xx
 43. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
