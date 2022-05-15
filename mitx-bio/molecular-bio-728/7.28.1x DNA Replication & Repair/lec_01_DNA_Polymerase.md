@@ -8,8 +8,8 @@
 
 ## Notes
 
-- DNA stands for deoxyribonucleic acid.
-- The most common form of the DNA double helix is B-form DNA.
+1. DNA stands for deoxyribonucleic acid.
+2. The most common form of the DNA double helix is B-form DNA.
 3. Each strand of DNA is a polynucleotide (polymer of nucleotides).
 4. A nucleotide has 3 components: 5-carbon sugar, phosphate group, and one of 4 nitrogenous bases.
 6. The 4 nitrogenous bases of DNA are: adenine (A), cytosine (C), guanine (G), and thymine (T).
@@ -48,10 +48,11 @@
 39. E. coli cells replicate the genome in ~ 40 minutes.
 40. The substrate for DNA replication is the primer-template junction (PTJ), which consists of a single-stranded DNA template with an annealed primer that has a free 3' OH (hydroxyl)
 41. The primer in the PTJ is extended when the primer 3' OH attacks the alpha phosphate of an incoming deoxynucleotide triphosphate (dNTP) releasing a pyrophosphate. This reaction is catalyzed by the enzyme DNA polymerase.
-42. The pyrophosphate is then quickly degraded to two phosphate ions by the action of the pyrophosphatase enzyme.
+42. The pyrophosphate is then quickly degraded to two phosphate ions by the action of the enzyme inorganic pyrophosphatase.
 43. DNA polymerase catalyzes the addition of dNTPs to a growing DNA strand.
-44. xx
-45. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
+44. The coupling of the 3' OH + alpha-phosphate reaction to the degradation of the pyrophosphate to two phosphate ions drives the reaction forward by making it more exergonic, and essentially makes the addition of the base irreversible.
+45. ***-the chemistry of DNA replication-***
+46. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
 
 ## Key Terms
 
