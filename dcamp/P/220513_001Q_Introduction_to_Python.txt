@@ -1,3 +1,5 @@
 print value of 1.003^240
 What's the remainder when 97 is divided by 23?
 Check what version of Python you're running (two ways)
+Create two variables: hello and world. Check the variable type. Concatenate into one string
+Create two lists: first 10 digits of pi and first ten digits of e. Check the variable type. Append the pi list to the end of the e list.
