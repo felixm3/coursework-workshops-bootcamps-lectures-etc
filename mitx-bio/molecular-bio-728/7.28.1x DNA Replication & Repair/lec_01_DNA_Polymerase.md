@@ -18,7 +18,7 @@
 9. The 5-carbon sugar is called deoxyribose because it's [missing a hydroxyl group at the 2' carbon] (https://upload.wikimedia.org/wikipedia/commons/f/fb/The_difference_between_ribose_and_deoxyribose.png), which is present in ribose.
 10. Nucleotides in DNA are called deoxyribonucleotides because they contain deoxyribose.
 11. Nucleotides are linked in the DNA strand by phosphodiester bonds, where the phosphate group of one nucleotide binds to the 3' carbon of the neighboring nucleotide.
-12. The sugars and the phosphate group make up the DNA backbone.
+12. The sugars and the phosphate groups make up the DNA backbone.
 13. The carbon numbering is used to describe the directionality of the two DNA strands: 5' to 3'
 14. In drawings where the 2 DNA strands are shown one above the other, the top (Watson) strand is usually drawn in the 5' to 3' orientation, where the 5' carbon of each sugar is on the left. The bottom (Crick) strand is drawn in the 3' to 5' orientation, where the 3' carbon of each sugar is on the left.
 15. The nucleotides are connected through covalent phosphodiester bonds in the backbone.
