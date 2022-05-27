@@ -3,5 +3,5 @@ What's the remainder when 97 is divided by 23?
 Check what version of Python you're running (two ways)
 Create two variables: hello and world. Check the variable type. Concatenate into one string
 Create two lists: first 10 digits of pi and first ten digits of e. Check the variable type. Append the pi list to the end of the e list.
-Assign x the value 2. Using x, print out 'The 7th digit of pi is 2'
-Assign y the value 2. Using y, print out 'The 5th digit of e is 2'
+Assign x the value 2. Using x, print out 'The 7th digit of pi is 2' (two ways)
+Assign y the value 2. Using y, print out 'The 5th digit of e is 2' (two ways)
