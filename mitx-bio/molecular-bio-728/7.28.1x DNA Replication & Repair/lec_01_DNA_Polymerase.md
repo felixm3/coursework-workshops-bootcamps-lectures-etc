@@ -28,7 +28,7 @@
 19. An A/T base pair (2 H-bonds) has an energy of ~10 kJ/mol while a G/C base pair (3 H-bonds)has an energy of ~15 kJ/mol.
 20. ThYmine and cYtosine are pYrimidines characterized by their single-ring structure.
 21. Adenine and guanine are purines characterized by their double-ring structure.
-22. Non-complementary base pairs e.g. GT do not form strong hydrogen bonds and disturb the helix structure.
+22. Non-complementary base pairs e.g. G/T do not form strong hydrogen bonds and disturb the helix structure.
 23. Each turn of the double helix measures approximately 10 base pairs.
 24. Pi-pi interactions between bases in the helical stack (base stacking interactions) contribute to the stability of the double helix.
 25. Consecutive G/C base pairs have a stacking energy of ~45 kJ/mole. Consecutive A/T base pairs have a stacking energy of ~20 kJ/mole.
@@ -47,12 +47,14 @@
 38. DNA replication is frequently a target of drugs (chemotherapy, anti-virals) so important to understand to develop better drugs.
 39. E. coli cells replicate the genome in ~ 40 minutes.
 40. The substrate for DNA replication is the primer-template junction (PTJ), which consists of a single-stranded DNA template with an annealed primer that has a free 3' OH (hydroxyl)
-41. The primer in the PTJ is extended when the primer 3' OH attacks the alpha phosphate of an incoming deoxynucleotide triphosphate (dNTP) releasing a pyrophosphate. This reaction is catalyzed by the enzyme DNA polymerase.
-42. The pyrophosphate is then quickly degraded to two phosphate ions by the action of the enzyme inorganic pyrophosphatase.
-43. DNA polymerase catalyzes the addition of dNTPs to a growing DNA strand.
-44. The coupling of the 3' OH + alpha-phosphate reaction to the degradation of the pyrophosphate to two phosphate ions drives the reaction forward by making it more exergonic, and essentially makes the addition of the base irreversible.
-45. ***-the chemistry of DNA replication-***
-46. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
+42. The primer in the PTJ is extended when the primer 3' OH attacks the alpha phosphate of an incoming deoxynucleotide triphosphate (dNTP) releasing a pyrophosphate. This reaction is catalyzed by the enzyme DNA polymerase only when the incoming dNTP correctly base pairs with the template.
+43. The pyrophosphate is then quickly degraded to two phosphate ions by the action of the enzyme inorganic pyrophosphatase.
+44. The three phosphates on a dNTP are called alpha, beta, and gamma. The alpha phosphate is directly connected to the 5' carbon of the sugar. The beta phosphate connects the alpha phosphate and the gamma phosphate.
+45. DNA polymerase catalyzes the addition of dNTPs to a growing DNA strand by extending the 3' OH primer.
+46. The coupling of the 3' OH + alpha-phosphate reaction, to the degradation of the pyrophosphate to two phosphate ions by pyrophosphatase, drives the reaction forward by making it more exergonic, and essentially makes the addition of the base irreversible. The reaction without pyrophosphatase has a free energy of -3.5 kcal/mol. The reaction with pyrophosphatase has a free energy of -7 kcal/mol.
+47. Unlike most enzymes, which have one active site that catalyzes  one reaction, DNA polymerase uses a single active site to catalyze the addition of any of the four dNTPs. DNA polymerase  accomplishes this catalytic flexibility by exploiting the nearly identical  geometry of the A:T and G:C base pairs (remember that the dimensions of  the DNA helix are largely independent of the DNA sequence).
+48. ***-The DNA Polymerase Active Site-***
+49. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
 
 ## Key Terms
 
