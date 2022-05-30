@@ -29,7 +29,7 @@
 20. ThYmine and cYtosine are pYrimidines characterized by their single-ring structure.
 21. Adenine and guanine are purines characterized by their double-ring structure.
 22. Non-complementary base pairs e.g. G/T do not form strong hydrogen bonds and disturb the helix structure.
-23. Each turn of the double helix measures approximately 10 base pairs.
+23. Each turn of the double helix measures approximately 10.5 base pairs.
 24. Pi-pi interactions between bases in the helical stack (base stacking interactions) contribute to the stability of the double helix.
 25. Consecutive G/C base pairs have a stacking energy of ~45 kJ/mole. Consecutive A/T base pairs have a stacking energy of ~20 kJ/mole.
 26. A/T rich regions of DNA melt more readily than G/C rich regions because of the differences in hydrogen bonding and base stacking energies.
