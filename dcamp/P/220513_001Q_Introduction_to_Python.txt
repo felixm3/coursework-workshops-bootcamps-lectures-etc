@@ -5,3 +5,5 @@ Create two variables: hello and world. Check the variable type. Concatenate into
 Create two lists: first 10 digits of pi and first ten digits of e. Check the variable type. Append the pi list to the end of the e list.
 Assign x the value 2. Using x, print out 'The 7th digit of pi is 2' (two ways)
 Assign y the value 2. Using y, print out 'The 5th digit of e is 2' (two ways)
+Create a list with the first 10 digits of pi. Select the: first item in the list; last item in the list; first 5 items in the list; last 5 items in the list; the third, fourth and fifth elements
+Create a list of two lists: first 6 digits of e and pi. Select the: 3rd digit of e; 4th digit of pi; first 2 digits of e; last 2 digits of pi

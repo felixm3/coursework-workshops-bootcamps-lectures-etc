@@ -1,0 +1,3 @@
+create a vector with the first 10 digits of pi. check it's length.
+check the documentation for the command 'with'
+add the first 10 digits of e to the first 10 digits of pi
