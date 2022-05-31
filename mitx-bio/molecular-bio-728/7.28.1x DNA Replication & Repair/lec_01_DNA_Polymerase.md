@@ -29,7 +29,7 @@
 20. ThYmine and cYtosine are pYrimidines characterized by their single-ring structure.
 21. Adenine and guanine are purines characterized by their double-ring structure.
 22. Non-complementary base pairs e.g. G/T do not form strong hydrogen bonds and disturb the helix structure.
-23. Each turn of the double helix measures approximately 10 base pairs.
+23. Each turn of the double helix measures approximately 10.5 base pairs.
 24. Pi-pi interactions between bases in the helical stack (base stacking interactions) contribute to the stability of the double helix.
 25. Consecutive G/C base pairs have a stacking energy of ~45 kJ/mole. Consecutive A/T base pairs have a stacking energy of ~20 kJ/mole.
 26. A/T rich regions of DNA melt more readily than G/C rich regions because of the differences in hydrogen bonding and base stacking energies.
@@ -53,8 +53,15 @@
 45. DNA polymerase catalyzes the addition of dNTPs to a growing DNA strand by extending the 3' OH primer.
 46. The coupling of the 3' OH + alpha-phosphate reaction, to the degradation of the pyrophosphate to two phosphate ions by pyrophosphatase, drives the reaction forward by making it more exergonic, and essentially makes the addition of the base irreversible. The reaction without pyrophosphatase has a free energy of -3.5 kcal/mol. The reaction with pyrophosphatase has a free energy of -7 kcal/mol.
 47. Unlike most enzymes, which have one active site that catalyzes  one reaction, DNA polymerase uses a single active site to catalyze the addition of any of the four dNTPs. DNA polymerase  accomplishes this catalytic flexibility by exploiting the nearly identical  geometry of the A:T and G:C base pairs (remember that the dimensions of  the DNA helix are largely independent of the DNA sequence).
-48. ***-The DNA Polymerase Active Site-***
-49. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
+48. Correct base pairing positions the primer 3' OH and the alpha phosphate just right for catalysis. Incorrect base pairing mispositions the two and slows catalysis by as much as $10^4$.
+49. The structure of DNA polymerase has been described as 'right hand-like' with 'fingers', 'thumb' and 'palm'.
+50. The palm binds the PTJ and the newly-synthesized DNA through the minor groove (non-sequence-specific).
+51. The major groove donor-acceptor pattern of G/C is AADH
+52. The major groove donor-acceptor pattern of A/T is ADAM
+53. The minor groove donor-acceptor pattern of G/C is ADA
+54. The minor groove donor-acceptor pattern of A/T is AHA 
+55. ***-Catalysis by the Fingers of DNA Polymerase-***
+56. Mutations can cause diseases like cancer. Mutations can also cause bacteria and viruses to become resistant to drugs.
 
 ## Key Terms
 
