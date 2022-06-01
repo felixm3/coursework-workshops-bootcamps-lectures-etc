@@ -2,8 +2,9 @@ print value of 1.003^240
 What's the remainder when 97 is divided by 23?
 Check what version of Python you're running (two ways)
 Create two variables: hello and world. Check the variable type. Concatenate into one string
-Create two lists: first 10 digits of pi and first ten digits of e. Check the variable type. Append the pi list to the end of the e list.
+Create two lists: first ten digits of pi and first ten digits of e. Check the variable type. Append the pi list to the end of the e list.
 Assign x the value 2. Using x, print out 'The 7th digit of pi is 2' (two ways)
 Assign y the value 2. Using y, print out 'The 5th digit of e is 2' (two ways)
-Create a list with the first 10 digits of pi. Select the: first item in the list; last item in the list; first 5 items in the list; last 5 items in the list; the third, fourth and fifth elements
-Create a list of two lists: first 6 digits of e and pi. Select the: 3rd digit of e; 4th digit of pi; first 2 digits of e; last 2 digits of pi
+Create a list with the first nine digits of pi. Select the: first item in the list; last item in the list; first five items in the list; last five items in the list; the third, fourth and fifth elements
+Create a list of two lists: first six digits of e and pi. Select the: third digit of e; fourth digit of pi; first two digits of e; last two digits of pi
+Create a list of the numbers 1 through 10. Replace 2 with 11. Replace 8, 9, 10 with 13, 17, 19.
