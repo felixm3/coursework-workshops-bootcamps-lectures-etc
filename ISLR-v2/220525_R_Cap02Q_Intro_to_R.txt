@@ -2,3 +2,5 @@ create a vector with the first 10 digits of pi. check it's length.
 check the documentation for the command 'with'
 add the first 10 digits of e to the first 10 digits of pi
 create variables x, y, z with values 1, 2, 3 respectively. What objects are in the environment? Delete y from the environment and check that it's deleted. Delete all elements from environment and check that they're deleted.
+create a random 2x2 matrix using a seed
+create a matrix with the numbers 1 through 4 filling in the entries by column. Now do it by row.
