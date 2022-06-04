@@ -8,4 +8,5 @@ Assign y the value 2. Using y, print out 'The 5th digit of e is 2' (two ways)
 Create a list with the first nine digits of pi. Select the: first item in the list; last item in the list; first five items in the list; last five items in the list; the third, fourth and fifth elements
 Create a list of two lists: first six digits of e and pi. Select the: third digit of e; fourth digit of pi; first two digits of e; last two digits of pi
 Create a list of the numbers 1 through 10. Replace 2 with 11. Replace 8, 9, 10 with 13, 17, 19.
-create a list with the first 6 digits of pi. append the next 4 digits to it (two ways).
+create a list with the first 6 digits of pi. add the next 4 digits to the end of it (two ways).
+create a list with the first 6 digits of e. remove the first 8. now remove the middle 3 digits.
