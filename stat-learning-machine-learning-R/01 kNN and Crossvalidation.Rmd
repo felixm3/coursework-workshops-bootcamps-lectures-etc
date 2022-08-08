@@ -6,6 +6,7 @@ date: '2022-08-08'
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.retina = 2)
 ```
 
 ## Iris

@@ -56,7 +56,7 @@ pairs(~ ., data = iris.data[-5],
       col = as.factor(iris.data$Species))
 ```
 
-![](01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-1-1.png" width="672" />
 
 ## R Markdown
 
@@ -84,7 +84,7 @@ summary(cars)
 
 You can also embed plots, for example:
 
-![](01-kNN-and-Crossvalidation_files/figure-gfm/pressure-1.png)<!-- -->
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/pressure-1.png" width="672" />
 
 Note that the `echo = FALSE` parameter was added to the code chunk to
 prevent printing of the R code that generated the plot.
