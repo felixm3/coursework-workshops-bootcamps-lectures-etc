@@ -11,6 +11,7 @@ knitr::opts_chunk$set(fig.retina = 2)
 
 ## Iris
 
+### Load the Data
 
 ```{r}
 
@@ -19,18 +20,78 @@ iris.data <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases
                       header = FALSE, 
                       col.names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
 
+
+```
+
+### Look at the Data
+
+```{r}
+
 head(iris.data)
+
+iris.data[5] <- factor(iris.data[[5]])
 
 str(iris.data)
 
 summary(iris.data)
 
+```
+
+```{r}
+
 pairs(~ ., data = iris.data[-5], 
-      col = as.factor(iris.data$Species))
+      col = factor(iris.data[[5]])) # this would be clearer if used `Species` instead of `5` in the command
 
 ```
 
+I used the `caret` package for model fitting and crossvalidation
 
+```{r}
+
+# load caret package
+library(caret)
+
+```
+
+I tested 5-fold, 10-fold, and leave-one-out crossvalidation (CV)
+
+```{r}
+
+# 5-fold, 10-fold, and leave-one-out (LOO) CV
+numFolds <- c(5, 10, 150)
+
+# list to store the different fits
+fitList <- vector(mode = "list", length = length(numFolds))
+names(fitList) <- numFolds
+
+for(i in 1:length(numFolds)){
+  trControl <- trainControl(method = "cv",
+                            number = numFolds[i])
+  
+  fitList[[i]] <- train(Species ~ .,
+                        method = "knn",
+                        tuneGrid = expand.grid(k = 1:50),
+                        trControl = trControl,
+                        metric = "Accuracy",
+                        data = iris.data)
+}
+fitList
+
+```
+
+Plot the results showing the comparison in performance
+
+```{r}
+
+plot(1:50, 1-fitList[[1]]$results$Accuracy,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate")
+points(1:50, 1-fitList[[2]]$results$Accuracy, type = "o", col = "blue")
+points(1:50, 1-fitList[[3]]$results$Accuracy, type = "o", col = "black")
+legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
+       col = c("red", "blue", "black"), lty = 1)
+
+```
 
 
 ## R Markdown
