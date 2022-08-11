@@ -44,6 +44,8 @@ pairs(~ ., data = iris.data[-5],
 
 ```
 
+### Fit and Validate the knn Model
+
 I used the `caret` package for model fitting and crossvalidation
 
 ```{r}
@@ -79,6 +81,8 @@ fitList
 
 ```
 
+### Analyze Performance Metrics
+
 Plot the results showing the comparison in performance
 
 ```{r}
@@ -92,6 +96,7 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
        col = c("red", "blue", "black"), lty = 1)
 
 ```
+
 
 
 ## R Markdown
