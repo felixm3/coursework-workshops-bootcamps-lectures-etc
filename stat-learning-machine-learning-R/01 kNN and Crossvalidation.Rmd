@@ -44,7 +44,7 @@ pairs(~ ., data = iris.data[-5],
 
 ```
 
-### Fit and Validate the knn Model
+### Fit and Validate the `kNN` Model
 
 I used the `caret` package for model fitting and crossvalidation
 
@@ -69,8 +69,9 @@ names(fitList) <- numFolds
 for(i in 1:length(numFolds)){
   trControl <- trainControl(method = "cv",
                             number = numFolds[i])
-  
-  fitList[[i]] <- train(Species ~ .,
+
+# vary the number of nearest neighbors k from 1 to 50  
+fitList[[i]] <- train(Species ~ .,
                         method = "knn",
                         tuneGrid = expand.grid(k = 1:50),
                         trControl = trControl,
@@ -96,6 +97,27 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
        col = c("red", "blue", "black"), lty = 1)
 
 ```
+
+## USPS digits
+
+```{r}
+
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", delim = " ", col_names = FALSE)
+
+str(usps_train)
+
+```
+
+
+```{r}
+
+(usps_train_labels <- usps_train[, 1])
+
+
+```
+
 
 
 
