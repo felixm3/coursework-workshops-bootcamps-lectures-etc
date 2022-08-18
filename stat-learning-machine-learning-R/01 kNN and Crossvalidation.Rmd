@@ -70,7 +70,8 @@ for(i in 1:length(numFolds)){
   trControl <- trainControl(method = "cv",
                             number = numFolds[i])
 
-# vary the number of nearest neighbors k from 1 to 50  
+# vary the number of nearest neighbors k from 1 to 50
+set.seed(1250)
 fitList[[i]] <- train(Species ~ .,
                         method = "knn",
                         tuneGrid = expand.grid(k = 1:50),
@@ -90,7 +91,9 @@ Plot the results showing the comparison in performance
 
 plot(1:50, 1-fitList[[1]]$results$Accuracy,
      type = "o", col = "red",
-     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate")
+     xlab = "k (number of nearest neighbors used)", 
+     ylab = "Misclassification Error Rate", 
+     ylim = c(0.01, 0.091))
 points(1:50, 1-fitList[[2]]$results$Accuracy, type = "o", col = "blue")
 points(1:50, 1-fitList[[3]]$results$Accuracy, type = "o", col = "black")
 legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
@@ -100,21 +103,36 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## USPS digits
 
+Load the data
+
 ```{r}
 
 library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", delim = " ", col_names = FALSE)
 
-str(usps_train)
+```
+
+Look at the data.
+
+[Each row is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the 256 normalized grayscale values of the 16 x 16 pixel image of a digit.
+
+The first column contains the identity (label) of the digit. The last column is all NA.
+
+```{r}
+
+# str(usps_train)
+
+(usps_train_labels <- usps_train[, 1])
+summary(usps_train[, 258])
+head(usps_train)
 
 ```
 
 
 ```{r}
 
-(usps_train_labels <- usps_train[, 1])
-
+ls()
 
 ```
 
