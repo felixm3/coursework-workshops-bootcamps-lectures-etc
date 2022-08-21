@@ -1,5 +1,5 @@
 ---
-title: "kNN Classification & Crossvalidation"
+title: "$K$-Nearest Neighbors ($k$NN) Classification & Crossvalidation"
 output: rmarkdown::github_document
 date: '2022-08-08'
 ---
@@ -10,6 +10,8 @@ knitr::opts_chunk$set(fig.retina = 2)
 ```
 
 ## Iris
+
+PROBLEM STATEMENT: for the $k$NN classifier, compare the 5-fold, 10-fold, and leave-one-out cross-validation error rates for $k=1,...,50$ on the classic `Iris` dataset
 
 ### Load the Data
 
@@ -103,13 +105,16 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## USPS digits
 
+PROBLEM STATEMENT: for the $k$NN classifier, compare the test error rates for three different distance metrics (Euclidean, Manhattan, cosine) on the USPS handwritten zip code digits dataset https://hastie.su.domains/ElemStatLearn/data.html 
+
 Load the data
 
 ```{r}
 
 library(tidyverse)
 usps_train <- read_delim(
-  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", delim = " ", col_names = FALSE)
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE)
 
 ```
 

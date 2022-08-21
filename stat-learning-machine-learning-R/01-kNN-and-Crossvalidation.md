@@ -1,8 +1,18 @@
-kNN Classification & Crossvalidation
+![K](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;K "K")-Nearest
+Neighbors
+(![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN)
+Classification & Crossvalidation
 ================
 2022-08-08
 
 ## Iris
+
+PROBLEM STATEMENT: for the
+![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN
+classifier, compare the 5-fold, 10-fold, and leave-one-out
+cross-validation error rates for
+![k=1,...,50](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k%3D1%2C...%2C50 "k=1,...,50")
+on the classic `Iris` dataset
 
 ### Load the Data
 
@@ -332,6 +342,12 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## USPS digits
 
+PROBLEM STATEMENT: for the
+![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN
+classifier, compare the test error rates for three different distance
+metrics (Euclidean, Manhattan, cosine) on the USPS handwritten zip code
+digits dataset <https://hastie.su.domains/ElemStatLearn/data.html>
+
 Load the data
 
 ``` r
@@ -352,7 +368,8 @@ library(tidyverse)
 
 ``` r
 usps_train <- read_delim(
-  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", delim = " ", col_names = FALSE)
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE)
 ```
 
     ## Rows: 7291 Columns: 258
