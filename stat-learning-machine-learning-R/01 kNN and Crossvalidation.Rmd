@@ -1,5 +1,5 @@
 ---
-title: "$K$-Nearest Neighbors ($k$NN) Classification & Crossvalidation"
+title: "*K*-Nearest Neighbors (*k*NN) Classification & Cross-Validation"
 output: rmarkdown::github_document
 date: '2022-08-08'
 ---
@@ -11,16 +11,17 @@ knitr::opts_chunk$set(fig.retina = 2)
 
 ## Iris
 
-PROBLEM STATEMENT: for the $k$NN classifier, compare the 5-fold, 10-fold, and leave-one-out cross-validation error rates for $k=1,...,50$ on the classic `Iris` dataset
+PROBLEM STATEMENT: for the *k*NN classifier, compare the 5-fold, 10-fold, and leave-one-out cross-validation error rates for *k* = 1, ..., 50 on the classic `Iris` dataset
 
 ### Load the Data
 
 ```{r}
 
 # import iris data
-iris.data <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data", 
-                      header = FALSE, 
-                      col.names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
+iris.data <- read.csv(
+  "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data", 
+  header = FALSE, 
+  col.names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
 
 
 ```
@@ -42,13 +43,14 @@ summary(iris.data)
 ```{r}
 
 pairs(~ ., data = iris.data[-5], 
-      col = factor(iris.data[[5]])) # this would be clearer if used `Species` instead of `5` in the command
+      col = factor(iris.data[[5]])) 
+# this would be clearer if used `Species` instead of `5` in the command
 
 ```
 
-### Fit and Validate the `kNN` Model
+### Fit and Validate the *k*NN Model
 
-I used the `caret` package for model fitting and crossvalidation
+I used the `caret` package for model fitting and cross-validation
 
 ```{r}
 
@@ -57,7 +59,7 @@ library(caret)
 
 ```
 
-I tested 5-fold, 10-fold, and leave-one-out crossvalidation (CV)
+I tested 5-fold, 10-fold, and leave-one-out cross-validation (CV)
 
 ```{r}
 
@@ -94,7 +96,7 @@ Plot the results showing the comparison in performance
 plot(1:50, 1-fitList[[1]]$results$Accuracy,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", 
-     ylab = "Misclassification Error Rate", 
+     ylab = "Cross-Validation Error Rate", 
      ylim = c(0.01, 0.091))
 points(1:50, 1-fitList[[2]]$results$Accuracy, type = "o", col = "blue")
 points(1:50, 1-fitList[[3]]$results$Accuracy, type = "o", col = "black")
@@ -105,7 +107,7 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## USPS digits
 
-PROBLEM STATEMENT: for the $k$NN classifier, compare the test error rates for three different distance metrics (Euclidean, Manhattan, cosine) on the USPS handwritten zip code digits dataset https://hastie.su.domains/ElemStatLearn/data.html 
+PROBLEM STATEMENT: for the *k*NN classifier, compare the test error rates for three different distance metrics (Euclidean, Manhattan, cosine) on the [USPS handwritten zip code digits dataset](https://hastie.su.domains/ElemStatLearn/data.html) 
 
 Load the data
 

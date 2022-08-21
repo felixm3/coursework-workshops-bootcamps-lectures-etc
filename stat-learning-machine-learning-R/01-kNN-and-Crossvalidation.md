@@ -1,26 +1,21 @@
-![K](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;K "K")-Nearest
-Neighbors
-(![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN)
-Classification & Crossvalidation
+*K*-Nearest Neighbors (*k*NN) Classification & Cross-Validation
 ================
 2022-08-08
 
 ## Iris
 
-PROBLEM STATEMENT: for the
-![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN
-classifier, compare the 5-fold, 10-fold, and leave-one-out
-cross-validation error rates for
-![k=1,...,50](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k%3D1%2C...%2C50 "k=1,...,50")
-on the classic `Iris` dataset
+PROBLEM STATEMENT: for the *k*NN classifier, compare the 5-fold,
+10-fold, and leave-one-out cross-validation error rates for *k* = 1, …,
+50 on the classic `Iris` dataset
 
 ### Load the Data
 
 ``` r
 # import iris data
-iris.data <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data", 
-                      header = FALSE, 
-                      col.names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
+iris.data <- read.csv(
+  "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/bezdekIris.data", 
+  header = FALSE, 
+  col.names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
 ```
 
 ### Look at the Data
@@ -71,14 +66,18 @@ summary(iris.data)
 
 ``` r
 pairs(~ ., data = iris.data[-5], 
-      col = factor(iris.data[[5]])) # this would be clearer if used `Species` instead of `5` in the command
+      col = factor(iris.data[[5]])) 
 ```
 
 <img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-3-1.png" width="672" />
 
-### Fit and Validate the `kNN` Model
+``` r
+# this would be clearer if used `Species` instead of `5` in the command
+```
 
-I used the `caret` package for model fitting and crossvalidation
+### Fit and Validate the *k*NN Model
+
+I used the `caret` package for model fitting and cross-validation
 
 ``` r
 # load caret package
@@ -89,7 +88,7 @@ library(caret)
 
     ## Loading required package: lattice
 
-I tested 5-fold, 10-fold, and leave-one-out crossvalidation (CV)
+I tested 5-fold, 10-fold, and leave-one-out cross-validation (CV)
 
 ``` r
 # 5-fold, 10-fold, and leave-one-out (LOO) CV
@@ -330,7 +329,7 @@ Plot the results showing the comparison in performance
 plot(1:50, 1-fitList[[1]]$results$Accuracy,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", 
-     ylab = "Misclassification Error Rate", 
+     ylab = "Cross-Validation Error Rate", 
      ylim = c(0.01, 0.091))
 points(1:50, 1-fitList[[2]]$results$Accuracy, type = "o", col = "blue")
 points(1:50, 1-fitList[[3]]$results$Accuracy, type = "o", col = "black")
@@ -342,11 +341,10 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## USPS digits
 
-PROBLEM STATEMENT: for the
-![k](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;k "k")NN
-classifier, compare the test error rates for three different distance
-metrics (Euclidean, Manhattan, cosine) on the USPS handwritten zip code
-digits dataset <https://hastie.su.domains/ElemStatLearn/data.html>
+PROBLEM STATEMENT: for the *k*NN classifier, compare the test error
+rates for three different distance metrics (Euclidean, Manhattan,
+cosine) on the [USPS handwritten zip code digits
+dataset](https://hastie.su.domains/ElemStatLearn/data.html)
 
 Load the data
 
