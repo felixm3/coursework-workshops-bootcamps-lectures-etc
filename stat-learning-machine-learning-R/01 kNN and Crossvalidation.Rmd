@@ -117,6 +117,9 @@ library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
   delim = " ", col_names = FALSE)
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE)
 
 ```
 
@@ -124,22 +127,206 @@ Look at the data.
 
 [Each row is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the 256 normalized grayscale values of the 16 x 16 pixel image of a digit.
 
-The first column contains the identity (label) of the digit. The last column is all NA.
+The first column contains the identity (label) of the digit. The last column of `usps_train` is all NA.
 
 ```{r}
 
 # str(usps_train)
 
-(usps_train_labels <- usps_train[, 1])
-summary(usps_train[, 258])
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- usps_train[, 1]
+usps_test_labels <- usps_test[, 1]
+
+# drop first column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# last column of usps_train is all NA
+summary(usps_train[, 257])
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
 head(usps_train)
+head(usps_test)
+
+str(usps_train)
+str(usps_test)
 
 ```
+Convert labels to factors
+
+```{r}
+
+usps_train_labels <- factor(usps_train_labels)
+usps_test_labels <- factor(usps_test_labels)
+
+str(usps_train_labels)
+str(usps_test_labels)
+
+```
+
+Define functions that calculate distance (Euclidean, Manhattan, cosine) between two vectors. These will be used to calculate the `n x m` distances between each of the `n` test points and all the `m` train points 
+
+```{r define distance functions}
+
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+manhattan_dist <- function(x1, x2){
+  # calculates Manhattan distance between vectors x1 and x2
+  return(sum(abs(x1 - x2)))
+}
+cosine_dist <- function(x1, x2){
+  # calculates Cosine distance between vectors x1 and x2
+  # note, however, that the cosine distance is not a proper distance metric as it does not have the triangle inequality property
+  # ?`%*%`
+  return(1 - ((x1 %*% x2)/(sqrt(x1 %*% x1) * sqrt(x2 %*% x2))))
+}
+
+```
+
+Calculate distance matrices
+
+For the three 'distances' (Euclidean, Manhattan, cosine), we create a matrix to store distances between each test point and all the train points. Each row of the distance matrix is a test point, each column is a train point, and the element (i, j) is the distance between test point i and train point j. This matrix will be used to figure out each test point's nearest neighbors.
+
+```{r initialize distance matrices}
+
+distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+distances_Manhattan <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+distances_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+```
+
+Populate the distance matrices
+
+```{r}
+
+system.time({
+  for(i in 1:nrow(usps_test)){
+    for(j in 1:nrow(usps_train)){
+      distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+      distances_Manhattan[i, j] <- manhattan_dist(usps_test[i, ], usps_train[j, ])
+      distances_Cosine[i, j] <- cosine_dist(usps_test[i, ], usps_train[j, ])
+    }
+  }
+})
+
+```
+
+took ~ 630s to create the matrices
+
+- how to compare 2 matrices?
+  - element-wise correlation
+
+```{r}
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} #74.241 sec
+
+```
+Now do for Manhattan and cosine distance
+
+```{r}
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Manhattan <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Manhattan[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Manhattan[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+}
+
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Cosine[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Cosine[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+}
+```
+
+Calculate error rates for the three distances
+
+```{r}
+
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Manhattan <- numeric(10)
+for(i in 1:10){
+  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Cosine <- numeric(10)
+for(i in 1:10){
+  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+```
+
+Plot the error rates
 
 
 ```{r}
 
-ls()
+plot(1:10, errorRate_Euclidean,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.05, 0.08))
+points(1:10, errorRate_Manhattan, type = "o", col = "blue")
+points(1:10, errorRate_Cosine, type = "o", col = "black")
+legend("top", legend = c("Euclidean", "Manhattan", "Cosine"),
+       col = c("red", "blue", "black"), lty = 1)
+
+cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
 
 ```
 
@@ -150,21 +337,10 @@ ls()
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 
 ```{r}
