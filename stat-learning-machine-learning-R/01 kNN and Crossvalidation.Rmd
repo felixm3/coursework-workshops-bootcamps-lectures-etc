@@ -105,7 +105,7 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ```
 
-## USPS digits
+## *k*NN classifer with different distance metrics: USPS digits
 
 PROBLEM STATEMENT: for the *k*NN classifier, compare the test error rates for three different distance metrics (Euclidean, Manhattan, cosine) on the [USPS handwritten zip code digits dataset](https://hastie.su.domains/ElemStatLearn/data.html) 
 
@@ -145,13 +145,13 @@ usps_train <- usps_train[, -1]
 usps_test <- usps_test[, -1]
 
 # last column of usps_train is all NA
-summary(usps_train[, 257])
+# summary(usps_train[, 257])
 
 # drop last column (all NA) of usps_train
 usps_train <- usps_train[, -257]
 
-head(usps_train)
-head(usps_test)
+# head(usps_train)
+# head(usps_test)
 
 str(usps_train)
 str(usps_test)
@@ -330,7 +330,122 @@ cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
 
 ```
 
+*how do I add error bars to above graph?*
 
+## weighted *k*NN USPS digits
+
+PROBLEM STATEMENT: apply the weighted *k*NN classifier (Euclidean distance, weights: inverse, squared inverse, and linear) on the [USPS handwritten zip code digits dataset](https://hastie.su.domains/ElemStatLearn/data.html) and compare test errors. 
+
+Load the data
+
+```{r}
+
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE)
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE)
+
+# str(usps_train)
+
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- usps_train[, 1]
+usps_test_labels <- usps_test[, 1]
+
+# drop first column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+# convert labels to factors
+usps_train_labels <- factor(usps_train_labels)
+usps_test_labels <- factor(usps_test_labels)
+
+str(usps_train_labels)
+str(usps_test_labels)
+
+
+```
+
+Is it faster to apply a function to a matrix directly `foo(M)` or to use `apply` to do it `apply(M, c(1, 2), foo)`?
+
+```{r}
+
+library(microbenchmark)
+
+inv <- function(x){1/x}
+
+M <- matrix(1:1000000, nrow = 1000)
+
+microbenchmark(inv(M), 
+               apply(M, 1, inv))
+
+
+```
+On average, using the function directly on the matrix is ~7X faster than using `apply`
+
+Define functions for the three weighting methods
+
+```{r}
+
+inv <- function(x, k = 1){k/x}
+
+inv_sqr <- function(x, k = 1){k/x^2}
+
+lin <- function(x, k = 1){k - x}
+
+plot(inv, 1, 10)
+curve(inv_sqr, add = TRUE, col = "red")
+curve(lin, add = TRUE, col = "blue") # doesn't show because range is 0 to -10
+
+```
+
+Create Euclidean distance matrix to store Euclidean distances between each test point and all the train points. Each row of the distance matrix is a test point, each column is a train point, and the matrix element (i, j) is the distance between test point i and train point j. This matrix will be used to figure out each test point's nearest neighbors.
+
+```{r}
+
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+  }
+}
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} #74.241 sec
+
+```
 
 
 ## R Markdown
