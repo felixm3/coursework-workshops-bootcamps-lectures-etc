@@ -427,21 +427,23 @@ for(i in 1:nrow(usps_test)){
 }
 
 # create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
 usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
 for(i in 1:nrow(usps_test)){
-  # cbind train set, train labels and dist[i, ] and sort by distance
-  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Euclidean[i, ])
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
   trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
   # head(trSetLabDist[ , 250:258], 10)
   # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
-  z <- integer(10) # vector to store counts of ten classes
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
   z_labels <- levels(usps_train_labels)
   for(k in 1:10){ # predictions for k = 1 to k = 10
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
     usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # head(usps_test_pred_Euclidean)
   }
 } #74.241 sec
 
@@ -457,10 +459,16 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 
 
+Session info
 
 ```{r}
 
+R.Version()
+R.version
+version
+sessionInfo()
 
+# rm(list = ls())
 
 ```
 
