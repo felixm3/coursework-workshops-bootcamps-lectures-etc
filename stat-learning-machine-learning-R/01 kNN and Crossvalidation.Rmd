@@ -439,7 +439,8 @@ for(i in 1:nrow(usps_test)){
   z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
   z_labels <- levels(usps_train_labels)
   for(k in 1:10){ # predictions for k = 1 to k = 10
-    for(m in 1:10){ # count how many times each class appears in the k neighbors
+    for(m in 1:k){ # count how many times each class appears in the k neighbors
+      
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
     usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
