@@ -395,6 +395,8 @@ Define functions for the three weighting methods
 
 ```{r}
 
+id <- function(x){x}
+
 inv <- function(x, k = 1){k/x}
 
 inv_sqr <- function(x, k = 1){k/x^2}
@@ -404,6 +406,7 @@ lin <- function(x, k = 1){k - x}
 plot(inv, 1, 10)
 curve(inv_sqr, add = TRUE, col = "red")
 curve(lin, add = TRUE, col = "blue") # doesn't show because range is 0 to -10
+curve(id, add = TRUE, col = "green")
 
 ```
 
@@ -439,9 +442,11 @@ for(i in 1:nrow(usps_test)){
   z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
   z_labels <- levels(usps_train_labels)
   for(k in 1:10){ # predictions for k = 1 to k = 10
-    for(m in 1:k){ # count how many times each class appears in the k neighbors
-      
-      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      #print(m)
+      z[which(z_labels == x[m, 'lab'])] <- 
+        z[which(z_labels == x[m, 'lab'])] + inv(x[m, 'dist'])
+      #z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
     usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
     # head(usps_test_pred_Euclidean)
