@@ -395,18 +395,15 @@ Define functions for the three weighting methods
 
 ```{r}
 
-id <- function(x){x}
-
 inv <- function(x, k = 1){k/x}
 
 inv_sqr <- function(x, k = 1){k/x^2}
 
 lin <- function(x, k = 1){k - x}
 
-plot(inv, 1, 10)
+plot(inv, 0, 10)
 curve(inv_sqr, add = TRUE, col = "red")
-curve(lin, add = TRUE, col = "blue") # doesn't show because range is 0 to -10
-curve(id, add = TRUE, col = "green")
+curve(lin, add = TRUE, col = "blue")
 
 ```
 
@@ -429,38 +426,140 @@ for(i in 1:nrow(usps_test)){
   }
 }
 
+
+```
+
+kNN with inverse weights
+
+```{r}
+
 # create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
-usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+usps_test_pred_Euclidean_inv <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
 for(i in 1:nrow(usps_test)){
   # cbind train labels and dist[i, ] and sort by distance
   trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
   trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
-  # head(trSetLabDist[ , 250:258], 10)
+  max_dist <- max(trSetLabDist[, 2])
   # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
   z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
-  z_labels <- levels(usps_train_labels)
+  z_labels <- levels(usps_test_labels)
   for(k in 1:10){ # predictions for k = 1 to k = 10
     for(m in 1:k){ # loop through the k neighbors and add the weight to z
-      #print(m)
-      z[which(z_labels == x[m, 'lab'])] <- 
-        z[which(z_labels == x[m, 'lab'])] + inv(x[m, 'dist'])
-      #z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + inv(trSetLabDist[m, 2], k = max_dist)
     }
-    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
-    # head(usps_test_pred_Euclidean)
+    usps_test_pred_Euclidean_inv[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
   }
-} #74.241 sec
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv)))
+
+
+```
+
+kNN with squared inverse weight
+
+```{r}
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+usps_test_pred_Euclidean_inv_sqr <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + inv_sqr(trSetLabDist[m, 2], k = max_dist)
+    }
+    usps_test_pred_Euclidean_inv_sqr[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv_sqr)))
+
 
 ```
 
 
-## R Markdown
+kNN with linear weight
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+usps_test_pred_Euclidean_lin <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + lin(trSetLabDist[m, 2], k = max_dist)
+    }
+    usps_test_pred_Euclidean_lin[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_lin)))
 
 
+```
+
+Calculate error rates for the three weighting schemes
+
+```{r}
+
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_inv <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_inv[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_inv_sqr <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_inv_sqr[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv_sqr[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_lin <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_lin[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_lin[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+```
+
+Plot the error rates
+
+
+```{r}
+
+plot(1:10, errorRate_Euclidean_inv,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.052, 0.058))
+points(1:10, errorRate_Euclidean_inv_sqr, type = "o", col = "blue")
+points(1:10, errorRate_Euclidean_lin, type = "o", col = "black")
+legend("top", legend = c("inverse", "squared inverse", "linear"),
+       col = c("red", "blue", "black"), lty = 1)
+
+cbind(errorRate_Euclidean_inv, errorRate_Euclidean_inv_sqr, errorRate_Euclidean_lin)
+
+```
 
 
 
