@@ -551,7 +551,7 @@ Plot the error rates
 plot(1:10, errorRate_Euclidean_inv,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0.052, 0.058))
+     ylim = c(0.052, 0.057))
 points(1:10, errorRate_Euclidean_inv_sqr, type = "o", col = "blue")
 points(1:10, errorRate_Euclidean_lin, type = "o", col = "black")
 legend("top", legend = c("inverse", "squared inverse", "linear"),
