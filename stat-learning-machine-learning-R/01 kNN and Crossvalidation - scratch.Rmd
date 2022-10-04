@@ -15,8 +15,6 @@ PROBLEM STATEMENT: for the *k*NN classifier, compare the 5-fold, 10-fold, and le
 
 ### Load the Data
 
-Let's download the data from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
-
 ```{r}
 
 # import iris data
@@ -41,26 +39,29 @@ str(iris.data)
 summary(iris.data)
 
 ```
-`str` tells us the dataset has 150 rows (observations) and 5 variables (columns), and that four of the columns are numeric (continuous) variables and the `Species` column is categorical with 3 levels.
-
-`summary` tells us that the dataset has no missing values (NAs) and that the observations are equally divided into the three `Species`
-
 
 ```{r}
 
 pairs(~ ., data = iris.data[-5], 
       col = factor(iris.data[[5]])) 
+# this would be clearer if used `Species` instead of `5` in the command
 
 ```
 
 ### Fit and Validate the *k*NN Model
 
-We use the `caret` package for model-fitting and for cross-validation, testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
+I used the `caret` package for model fitting and cross-validation
 
 ```{r}
 
 # load caret package
 library(caret)
+
+```
+
+I tested 5-fold, 10-fold, and leave-one-out cross-validation (CV)
+
+```{r}
 
 # 5-fold, 10-fold, and leave-one-out (LOO) CV
 numFolds <- c(5, 10, 150)
@@ -69,7 +70,6 @@ numFolds <- c(5, 10, 150)
 fitList <- vector(mode = "list", length = length(numFolds))
 names(fitList) <- numFolds
 
-# loop through the three different CV types
 for(i in 1:length(numFolds)){
   trControl <- trainControl(method = "cv",
                             number = numFolds[i])
@@ -83,9 +83,7 @@ fitList[[i]] <- train(Species ~ .,
                         metric = "Accuracy",
                         data = iris.data)
 }
-
-# fitList
-# str(fitList)
+fitList
 
 ```
 

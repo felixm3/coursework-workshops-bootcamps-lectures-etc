@@ -10,6 +10,9 @@ PROBLEM STATEMENT: for the *k*NN classifier, compare the 5-fold,
 
 ### Load the Data
 
+Let’s download the data from the [UCI Machine Learning
+Repository](https://archive.ics.uci.edu/ml/index.php)
+
 ``` r
 # import iris data
 iris.data <- read.csv(
@@ -64,6 +67,13 @@ summary(iris.data)
     ##                      
     ## 
 
+`str` tells us the dataset has 150 rows (observations) and 5 variables
+(columns), and that four of the columns are numeric (continuous)
+variables and the `Species` column is categorical with 3 levels.
+
+`summary` tells us that the dataset has no missing values (NAs) and that
+the observations are equally divided into the three `Species`
+
 ``` r
 pairs(~ ., data = iris.data[-5], 
       col = factor(iris.data[[5]])) 
@@ -71,13 +81,10 @@ pairs(~ ., data = iris.data[-5],
 
 <img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-3-1.png" width="672" />
 
-``` r
-# this would be clearer if used `Species` instead of `5` in the command
-```
-
 ### Fit and Validate the *k*NN Model
 
-I used the `caret` package for model fitting and cross-validation
+We use the `caret` package for model-fitting and for cross-validation,
+testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
 
 ``` r
 # load caret package
@@ -88,8 +95,6 @@ library(caret)
 
     ## Loading required package: lattice
 
-I tested 5-fold, 10-fold, and leave-one-out cross-validation (CV)
-
 ``` r
 # 5-fold, 10-fold, and leave-one-out (LOO) CV
 numFolds <- c(5, 10, 150)
@@ -98,6 +103,7 @@ numFolds <- c(5, 10, 150)
 fitList <- vector(mode = "list", length = length(numFolds))
 names(fitList) <- numFolds
 
+# loop through the three different CV types
 for(i in 1:length(numFolds)){
   trControl <- trainControl(method = "cv",
                             number = numFolds[i])
@@ -117,209 +123,9 @@ fitList[[i]] <- train(Species ~ .,
     ## There were missing values in resampled performance measures.
 
 ``` r
-fitList
+# fitList
+# str(fitList)
 ```
-
-    ## $`5`
-    ## k-Nearest Neighbors 
-    ## 
-    ## 150 samples
-    ##   4 predictor
-    ##   3 classes: 'Iris-setosa', 'Iris-versicolor', 'Iris-virginica' 
-    ## 
-    ## No pre-processing
-    ## Resampling: Cross-Validated (5 fold) 
-    ## Summary of sample sizes: 120, 120, 120, 120, 120 
-    ## Resampling results across tuning parameters:
-    ## 
-    ##   k   Accuracy   Kappa
-    ##    1  0.9600000  0.94 
-    ##    2  0.9600000  0.94 
-    ##    3  0.9600000  0.94 
-    ##    4  0.9600000  0.94 
-    ##    5  0.9533333  0.93 
-    ##    6  0.9400000  0.91 
-    ##    7  0.9400000  0.91 
-    ##    8  0.9600000  0.94 
-    ##    9  0.9600000  0.94 
-    ##   10  0.9600000  0.94 
-    ##   11  0.9600000  0.94 
-    ##   12  0.9733333  0.96 
-    ##   13  0.9666667  0.95 
-    ##   14  0.9600000  0.94 
-    ##   15  0.9733333  0.96 
-    ##   16  0.9666667  0.95 
-    ##   17  0.9666667  0.95 
-    ##   18  0.9600000  0.94 
-    ##   19  0.9600000  0.94 
-    ##   20  0.9600000  0.94 
-    ##   21  0.9666667  0.95 
-    ##   22  0.9600000  0.94 
-    ##   23  0.9400000  0.91 
-    ##   24  0.9600000  0.94 
-    ##   25  0.9400000  0.91 
-    ##   26  0.9333333  0.90 
-    ##   27  0.9333333  0.90 
-    ##   28  0.9333333  0.90 
-    ##   29  0.9333333  0.90 
-    ##   30  0.9333333  0.90 
-    ##   31  0.9400000  0.91 
-    ##   32  0.9400000  0.91 
-    ##   33  0.9400000  0.91 
-    ##   34  0.9400000  0.91 
-    ##   35  0.9400000  0.91 
-    ##   36  0.9400000  0.91 
-    ##   37  0.9400000  0.91 
-    ##   38  0.9466667  0.92 
-    ##   39  0.9400000  0.91 
-    ##   40  0.9200000  0.88 
-    ##   41  0.9333333  0.90 
-    ##   42  0.9400000  0.91 
-    ##   43  0.9466667  0.92 
-    ##   44  0.9400000  0.91 
-    ##   45  0.9266667  0.89 
-    ##   46  0.9200000  0.88 
-    ##   47  0.9066667  0.86 
-    ##   48  0.9200000  0.88 
-    ##   49  0.9133333  0.87 
-    ##   50  0.9266667  0.89 
-    ## 
-    ## Accuracy was used to select the optimal model using the largest value.
-    ## The final value used for the model was k = 15.
-    ## 
-    ## $`10`
-    ## k-Nearest Neighbors 
-    ## 
-    ## 150 samples
-    ##   4 predictor
-    ##   3 classes: 'Iris-setosa', 'Iris-versicolor', 'Iris-virginica' 
-    ## 
-    ## No pre-processing
-    ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 135, 135, 135, 135, 135, 135, ... 
-    ## Resampling results across tuning parameters:
-    ## 
-    ##   k   Accuracy   Kappa
-    ##    1  0.9600000  0.94 
-    ##    2  0.9600000  0.94 
-    ##    3  0.9600000  0.94 
-    ##    4  0.9600000  0.94 
-    ##    5  0.9600000  0.94 
-    ##    6  0.9533333  0.93 
-    ##    7  0.9533333  0.93 
-    ##    8  0.9666667  0.95 
-    ##    9  0.9733333  0.96 
-    ##   10  0.9733333  0.96 
-    ##   11  0.9600000  0.94 
-    ##   12  0.9600000  0.94 
-    ##   13  0.9733333  0.96 
-    ##   14  0.9733333  0.96 
-    ##   15  0.9666667  0.95 
-    ##   16  0.9733333  0.96 
-    ##   17  0.9733333  0.96 
-    ##   18  0.9733333  0.96 
-    ##   19  0.9666667  0.95 
-    ##   20  0.9666667  0.95 
-    ##   21  0.9733333  0.96 
-    ##   22  0.9666667  0.95 
-    ##   23  0.9666667  0.95 
-    ##   24  0.9666667  0.95 
-    ##   25  0.9600000  0.94 
-    ##   26  0.9600000  0.94 
-    ##   27  0.9533333  0.93 
-    ##   28  0.9600000  0.94 
-    ##   29  0.9466667  0.92 
-    ##   30  0.9400000  0.91 
-    ##   31  0.9333333  0.90 
-    ##   32  0.9400000  0.91 
-    ##   33  0.9400000  0.91 
-    ##   34  0.9466667  0.92 
-    ##   35  0.9533333  0.93 
-    ##   36  0.9533333  0.93 
-    ##   37  0.9466667  0.92 
-    ##   38  0.9466667  0.92 
-    ##   39  0.9466667  0.92 
-    ##   40  0.9466667  0.92 
-    ##   41  0.9466667  0.92 
-    ##   42  0.9533333  0.93 
-    ##   43  0.9466667  0.92 
-    ##   44  0.9466667  0.92 
-    ##   45  0.9466667  0.92 
-    ##   46  0.9466667  0.92 
-    ##   47  0.9466667  0.92 
-    ##   48  0.9466667  0.92 
-    ##   49  0.9400000  0.91 
-    ##   50  0.9400000  0.91 
-    ## 
-    ## Accuracy was used to select the optimal model using the largest value.
-    ## The final value used for the model was k = 21.
-    ## 
-    ## $`150`
-    ## k-Nearest Neighbors 
-    ## 
-    ## 150 samples
-    ##   4 predictor
-    ##   3 classes: 'Iris-setosa', 'Iris-versicolor', 'Iris-virginica' 
-    ## 
-    ## No pre-processing
-    ## Resampling: Cross-Validated (150 fold) 
-    ## Summary of sample sizes: 149, 149, 149, 149, 149, 149, ... 
-    ## Resampling results across tuning parameters:
-    ## 
-    ##   k   Accuracy   Kappa
-    ##    1  0.9600000  0    
-    ##    2  0.9600000  0    
-    ##    3  0.9600000  0    
-    ##    4  0.9600000  0    
-    ##    5  0.9666667  0    
-    ##    6  0.9666667  0    
-    ##    7  0.9666667  0    
-    ##    8  0.9666667  0    
-    ##    9  0.9666667  0    
-    ##   10  0.9733333  0    
-    ##   11  0.9800000  0    
-    ##   12  0.9600000  0    
-    ##   13  0.9666667  0    
-    ##   14  0.9800000  0    
-    ##   15  0.9733333  0    
-    ##   16  0.9733333  0    
-    ##   17  0.9733333  0    
-    ##   18  0.9800000  0    
-    ##   19  0.9800000  0    
-    ##   20  0.9800000  0    
-    ##   21  0.9666667  0    
-    ##   22  0.9600000  0    
-    ##   23  0.9666667  0    
-    ##   24  0.9666667  0    
-    ##   25  0.9666667  0    
-    ##   26  0.9533333  0    
-    ##   27  0.9533333  0    
-    ##   28  0.9666667  0    
-    ##   29  0.9533333  0    
-    ##   30  0.9533333  0    
-    ##   31  0.9466667  0    
-    ##   32  0.9533333  0    
-    ##   33  0.9533333  0    
-    ##   34  0.9466667  0    
-    ##   35  0.9533333  0    
-    ##   36  0.9466667  0    
-    ##   37  0.9466667  0    
-    ##   38  0.9400000  0    
-    ##   39  0.9466667  0    
-    ##   40  0.9400000  0    
-    ##   41  0.9466667  0    
-    ##   42  0.9466667  0    
-    ##   43  0.9400000  0    
-    ##   44  0.9466667  0    
-    ##   45  0.9400000  0    
-    ##   46  0.9466667  0    
-    ##   47  0.9466667  0    
-    ##   48  0.9466667  0    
-    ##   49  0.9266667  0    
-    ##   50  0.9200000  0    
-    ## 
-    ## Accuracy was used to select the optimal model using the largest value.
-    ## The final value used for the model was k = 20.
 
 ### Analyze Performance Metrics
 
@@ -337,9 +143,9 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
        col = c("red", "blue", "black"), lty = 1)
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-6-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-5-1.png" width="672" />
 
-## USPS digits
+## *k*NN classifer with different distance metrics: USPS digits
 
 PROBLEM STATEMENT: for the *k*NN classifier, compare the test error
 rates for three different distance metrics (Euclidean, Manhattan,
@@ -352,13 +158,11 @@ Load the data
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-
-    ## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
-    ## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
-    ## ✔ readr   2.1.2     ✔ forcats 0.5.1
-    ## ✔ purrr   0.3.4
-
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+    ## ✔ purrr   0.3.4      
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
@@ -371,11 +175,24 @@ usps_train <- read_delim(
 ```
 
     ## Rows: 7291 Columns: 258
-
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: " "
     ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
     ## lgl   (1): X258
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE)
+```
+
+    ## Rows: 2007 Columns: 257
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: " "
+    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
@@ -387,93 +204,914 @@ is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the
 256 normalized grayscale values of the 16 x 16 pixel image of a digit.
 
 The first column contains the identity (label) of the digit. The last
-column is all NA.
+column of `usps_train` is all NA.
 
 ``` r
 # str(usps_train)
 
-(usps_train_labels <- usps_train[, 1])
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- usps_train[, 1]
+usps_test_labels <- usps_test[, 1]
+
+# drop first column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# last column of usps_train is all NA
+# summary(usps_train[, 257])
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+# head(usps_train)
+# head(usps_test)
+
+str(usps_train)
 ```
 
-    ## # A tibble: 7,291 × 1
-    ##       X1
-    ##    <dbl>
-    ##  1     6
-    ##  2     5
-    ##  3     4
-    ##  4     7
-    ##  5     3
-    ##  6     6
-    ##  7     3
-    ##  8     1
-    ##  9     0
-    ## 10     1
-    ## # … with 7,281 more rows
+    ##  num [1:7291, 1:256] -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr [1:256] "X2" "X3" "X4" "X5" ...
 
 ``` r
-summary(usps_train[, 258])
+str(usps_test)
 ```
 
-    ##    X258        
-    ##  Mode:logical  
-    ##  NA's:7291
+    ##  num [1:2007, 1:256] -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr [1:256] "X2" "X3" "X4" "X5" ...
+
+Convert labels to factors
 
 ``` r
-head(usps_train)
+usps_train_labels <- factor(usps_train_labels)
+usps_test_labels <- factor(usps_test_labels)
+
+str(usps_train_labels)
 ```
 
-    ## # A tibble: 6 × 258
-    ##      X1    X2    X3    X4     X5     X6     X7     X8     X9    X10    X11
-    ##   <dbl> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>
-    ## 1     6    -1    -1    -1 -1     -1     -1     -1     -0.631  0.862 -0.167
-    ## 2     5    -1    -1    -1 -0.813 -0.671 -0.809 -0.887 -0.671 -0.853 -1    
-    ## 3     4    -1    -1    -1 -1     -1     -1     -1     -1     -1     -0.996
-    ## 4     7    -1    -1    -1 -1     -1     -0.273  0.684  0.96   0.45  -0.067
-    ## 5     3    -1    -1    -1 -1     -1     -0.928 -0.204  0.751  0.466  0.234
-    ## 6     6    -1    -1    -1 -1     -1     -0.397  0.983 -0.535 -1     -1    
-    ## # … with 247 more variables: X12 <dbl>, X13 <dbl>, X14 <dbl>, X15 <dbl>,
-    ## #   X16 <dbl>, X17 <dbl>, X18 <dbl>, X19 <dbl>, X20 <dbl>, X21 <dbl>,
-    ## #   X22 <dbl>, X23 <dbl>, X24 <dbl>, X25 <dbl>, X26 <dbl>, X27 <dbl>,
-    ## #   X28 <dbl>, X29 <dbl>, X30 <dbl>, X31 <dbl>, X32 <dbl>, X33 <dbl>,
-    ## #   X34 <dbl>, X35 <dbl>, X36 <dbl>, X37 <dbl>, X38 <dbl>, X39 <dbl>,
-    ## #   X40 <dbl>, X41 <dbl>, X42 <dbl>, X43 <dbl>, X44 <dbl>, X45 <dbl>,
-    ## #   X46 <dbl>, X47 <dbl>, X48 <dbl>, X49 <dbl>, X50 <dbl>, X51 <dbl>, …
+    ##  Factor w/ 10 levels "0","1","2","3",..: 7 6 5 8 4 7 4 2 1 2 ...
 
 ``` r
-ls()
+str(usps_test_labels)
 ```
 
-    ## [1] "fitList"           "i"                 "iris.data"        
-    ## [4] "numFolds"          "trControl"         "usps_train"       
-    ## [7] "usps_train_labels"
+    ##  Factor w/ 10 levels "0","1","2","3",..: 10 7 4 7 7 1 1 1 7 10 ...
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that
-includes both content as well as the output of any embedded R code
-chunks within the document. You can embed an R code chunk like this:
+Define functions that calculate distance (Euclidean, Manhattan, cosine)
+between two vectors. These will be used to calculate the `n x m`
+distances between each of the `n` test points and all the `m` train
+points
 
 ``` r
-summary(cars)
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+manhattan_dist <- function(x1, x2){
+  # calculates Manhattan distance between vectors x1 and x2
+  return(sum(abs(x1 - x2)))
+}
+cosine_dist <- function(x1, x2){
+  # calculates Cosine distance between vectors x1 and x2
+  # note, however, that the cosine distance is not a proper distance metric as it does not have the triangle inequality property
+  # ?`%*%`
+  return(1 - ((x1 %*% x2)/(sqrt(x1 %*% x1) * sqrt(x2 %*% x2))))
+}
 ```
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
+Calculate distance matrices
 
-## Including Plots
+For the three ‘distances’ (Euclidean, Manhattan, cosine), we create a
+matrix to store distances between each test point and all the train
+points. Each row of the distance matrix is a test point, each column is
+a train point, and the element (i, j) is the distance between test point
+i and train point j. This matrix will be used to figure out each test
+point’s nearest neighbors.
 
-You can also embed plots, for example:
+``` r
+distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+distances_Manhattan <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+distances_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/pressure-1.png" width="672" />
+Populate the distance matrices
 
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+kNN usually requires scaling before calculating distances to ensure all
+features are on the same footing. But since this data has already been
+scaled (all values between -1 and 1), this step was skipped.
+
+``` r
+system.time({
+  for(i in 1:nrow(usps_test)){
+    for(j in 1:nrow(usps_train)){
+      distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+      distances_Manhattan[i, j] <- manhattan_dist(usps_test[i, ], usps_train[j, ])
+      distances_Cosine[i, j] <- cosine_dist(usps_test[i, ], usps_train[j, ])
+    }
+  }
+})
+```
+
+    ##    user  system elapsed 
+    ## 508.653  77.353 589.385
+
+took \~ 630s to create the matrices
+
+-   how to compare 2 matrices?
+    -   element-wise correlation
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} #74.241 sec
+```
+
+Now do for Manhattan and cosine distance
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Manhattan <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Manhattan[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Manhattan[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+}
+
+
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+usps_test_pred_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train set, train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train, usps_train_labels, distances_Cosine[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Cosine[i, ]), ] # sort by distance
+  # head(trSetLabDist[ , 250:258], 10)
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store counts of ten classes
+  z_labels <- levels(usps_train_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:10){ # count how many times each class appears in the k neighbors
+      z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
+    }
+    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+}
+```
+
+Calculate error rates for the three distances
+
+``` r
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Manhattan <- numeric(10)
+for(i in 1:10){
+  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Cosine <- numeric(10)
+for(i in 1:10){
+  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), usps_test_labels)$overall["Accuracy"]
+}
+```
+
+Plot the error rates
+
+``` r
+plot(1:10, errorRate_Euclidean,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.05, 0.08))
+points(1:10, errorRate_Manhattan, type = "o", col = "blue")
+points(1:10, errorRate_Cosine, type = "o", col = "black")
+legend("top", legend = c("Euclidean", "Manhattan", "Cosine"),
+       col = c("red", "blue", "black"), lty = 1)
+```
+
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-13-1.png" width="672" />
+
+``` r
+cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
+```
+
+    ##       errorRate_Cosine errorRate_Euclidean errorRate_Manhattan
+    ##  [1,]       0.05729945          0.05630294          0.06228201
+    ##  [2,]       0.06028899          0.06826109          0.06776283
+    ##  [3,]       0.05580468          0.05630294          0.05929248
+    ##  [4,]       0.05580468          0.05480817          0.06128550
+    ##  [5,]       0.05630294          0.05729945          0.06228201
+    ##  [6,]       0.05879422          0.06078724          0.06377678
+    ##  [7,]       0.06128550          0.05879422          0.06576981
+    ##  [8,]       0.06028899          0.05829596          0.07125062
+    ##  [9,]       0.06327853          0.06128550          0.07224714
+    ## [10,]       0.06477329          0.06228201          0.07673144
+
+*how do I add error bars to above graph?*
+
+## weighted *k*NN USPS digits
+
+PROBLEM STATEMENT: apply the weighted *k*NN classifier (Euclidean
+distance, weights: inverse, squared inverse, and linear) on the [USPS
+handwritten zip code digits
+dataset](https://hastie.su.domains/ElemStatLearn/data.html) and compare
+test errors.
+
+Load the data
+
+``` r
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE)
+```
+
+    ## Rows: 7291 Columns: 258
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: " "
+    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
+    ## lgl   (1): X258
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE)
+```
+
+    ## Rows: 2007 Columns: 257
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: " "
+    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# str(usps_train)
+
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- usps_train[, 1]
+usps_test_labels <- usps_test[, 1]
+
+# drop first column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+# convert labels to factors
+usps_train_labels <- factor(usps_train_labels)
+usps_test_labels <- factor(usps_test_labels)
+
+str(usps_train_labels)
+```
+
+    ##  Factor w/ 10 levels "0","1","2","3",..: 7 6 5 8 4 7 4 2 1 2 ...
+
+``` r
+str(usps_test_labels)
+```
+
+    ##  Factor w/ 10 levels "0","1","2","3",..: 10 7 4 7 7 1 1 1 7 10 ...
+
+Is it faster to apply a function to a matrix directly `foo(M)` or to use
+`apply` to do it `apply(M, c(1, 2), foo)`?
+
+``` r
+library(microbenchmark)
+
+inv <- function(x){1/x}
+
+M <- matrix(1:1000000, nrow = 1000)
+
+microbenchmark(inv(M), 
+               apply(M, 1, inv))
+```
+
+    ## Unit: milliseconds
+    ##              expr       min        lq      mean    median       uq      max
+    ##            inv(M)  1.609122  1.714135  3.498266  2.022558  4.32466 24.69111
+    ##  apply(M, 1, inv) 13.958552 15.146995 21.159495 16.740110 21.51399 59.59920
+    ##  neval cld
+    ##    100  a 
+    ##    100   b
+
+On average, using the function directly on the matrix is \~7X faster
+than using `apply`
+
+Define functions for the three weighting methods
+
+``` r
+inv <- function(x, k = 1){k/x}
+
+inv_sqr <- function(x, k = 1){k/x^2}
+
+lin <- function(x, k = 1){k - x}
+
+plot(inv, 0, 10)
+curve(inv_sqr, add = TRUE, col = "red")
+curve(lin, add = TRUE, col = "blue")
+```
+
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-16-1.png" width="672" />
+
+Create Euclidean distance matrix to store Euclidean distances between
+each test point and all the train points. Each row of the distance
+matrix is a test point, each column is a train point, and the matrix
+element (i, j) is the distance between test point i and train point j.
+This matrix will be used to figure out each test point’s nearest
+neighbors.
+
+``` r
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+ptm <- proc.time()
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+  }
+}
+proc.time() - ptm
+```
+
+    ##    user  system elapsed 
+    ## 185.412  24.892 210.692
+
+``` r
+# ~3.5 minutes
+```
+
+kNN with inverse weights
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+usps_test_pred_Euclidean_inv <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + inv(trSetLabDist[m, 2], k = max_dist)
+    }
+    usps_test_pred_Euclidean_inv[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv)))
+```
+
+    ##      usps_test_labels   
+    ## [1,]               10 10
+    ## [2,]                7  7
+    ## [3,]                4  4
+    ## [4,]                7  7
+    ## [5,]                7  7
+    ## [6,]                1  1
+
+kNN with squared inverse weight
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+usps_test_pred_Euclidean_inv_sqr <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + inv_sqr(trSetLabDist[m, 2], k = max_dist)
+    }
+    usps_test_pred_Euclidean_inv_sqr[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv_sqr)))
+```
+
+    ##      usps_test_labels   
+    ## [1,]               10 10
+    ## [2,]                7  7
+    ## [3,]                4  4
+    ## [4,]                7  7
+    ## [5,]                7  7
+    ## [6,]                1  1
+
+kNN with linear weight
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+usps_test_pred_Euclidean_lin <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = 10 (10 predictions per test point)
+  z <- integer(10) # vector to store *WEIGHTED* counts of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:10){ # predictions for k = 1 to k = 10
+    for(m in 1:k){ # loop through the k neighbors and add the weight to z
+      z[which(z_labels == trSetLabDist[m, 1])] <- 
+        z[which(z_labels == trSetLabDist[m, 1])] + lin(trSetLabDist[m, 2], k = max_dist)
+    }
+    usps_test_pred_Euclidean_lin[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_lin)))
+```
+
+    ##      usps_test_labels   
+    ## [1,]               10 10
+    ## [2,]                7  7
+    ## [3,]                4  4
+    ## [4,]                7  7
+    ## [5,]                7  7
+    ## [6,]                1  1
+
+Calculate error rates for the three weighting schemes
+
+``` r
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_inv <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_inv[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_inv_sqr <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_inv_sqr[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv_sqr[, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_lin <- numeric(10)
+for(i in 1:10){
+  errorRate_Euclidean_lin[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_lin[, i]), usps_test_labels)$overall["Accuracy"]
+}
+```
+
+Plot the error rates
+
+``` r
+plot(1:10, errorRate_Euclidean_inv,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.052, 0.057))
+points(1:10, errorRate_Euclidean_inv_sqr, type = "o", col = "blue")
+points(1:10, errorRate_Euclidean_lin, type = "o", col = "black")
+legend("top", legend = c("inverse", "squared inverse", "linear"),
+       col = c("red", "blue", "black"), lty = 1)
+```
+
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-22-1.png" width="672" />
+
+``` r
+cbind(errorRate_Euclidean_inv, errorRate_Euclidean_inv_sqr, errorRate_Euclidean_lin)
+```
+
+    ##       errorRate_Euclidean_inv errorRate_Euclidean_inv_sqr
+    ##  [1,]              0.05630294                  0.05630294
+    ##  [2,]              0.05630294                  0.05630294
+    ##  [3,]              0.05630294                  0.05630294
+    ##  [4,]              0.05430992                  0.05381166
+    ##  [5,]              0.05331340                  0.05281515
+    ##  [6,]              0.05480817                  0.05281515
+    ##  [7,]              0.05331340                  0.05281515
+    ##  [8,]              0.05331340                  0.05181863
+    ##  [9,]              0.05331340                  0.05231689
+    ## [10,]              0.05331340                  0.05331340
+    ##       errorRate_Euclidean_lin
+    ##  [1,]              0.05630294
+    ##  [2,]              0.05630294
+    ##  [3,]              0.05630294
+    ##  [4,]              0.05480817
+    ##  [5,]              0.05381166
+    ##  [6,]              0.05480817
+    ##  [7,]              0.05331340
+    ##  [8,]              0.05331340
+    ##  [9,]              0.05381166
+    ## [10,]              0.05580468
+
+------------------------------------------------------------------------
+
+## nearest local centroid USPS digits
+
+PROBLEM STATEMENT: Apply the nearest local centroid classifier to the
+USPS digits data with different values of *k*. Plot the test error curve
+and interpret your results. What is the confusion matrix corresponding
+to the optimal *k*?
+
+Strategy - set initial centroid for all labels to max_dist - update
+centroids for labels within *k* neighbors - assign label as
+which.min(centroids)
+
+Load the data
+
+``` r
+rm(list = ls())
+gc()
+```
+
+    ##           used  (Mb) gc trigger  (Mb) max used  (Mb)
+    ## Ncells 2696976 144.1    4906922 262.1  4906922 262.1
+    ## Vcells 4598459  35.1   72902182 556.2 91127727 695.3
+
+``` r
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE)
+```
+
+    ## Rows: 7291 Columns: 258
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: " "
+    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
+    ## lgl   (1): X258
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE)
+```
+
+    ## Rows: 2007 Columns: 257
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: " "
+    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# str(usps_train)
+
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- usps_train[, 1]
+usps_test_labels <- usps_test[, 1]
+
+# drop first column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+# convert labels to factors
+usps_train_labels <- factor(usps_train_labels)
+usps_test_labels <- factor(usps_test_labels)
+
+str(usps_train_labels)
+```
+
+    ##  Factor w/ 10 levels "0","1","2","3",..: 7 6 5 8 4 7 4 2 1 2 ...
+
+``` r
+str(usps_test_labels)
+```
+
+    ##  Factor w/ 10 levels "0","1","2","3",..: 10 7 4 7 7 1 1 1 7 10 ...
+
+Create Euclidean distance matrix to store Euclidean distances between
+each test point and all the train points. Each row of the distance
+matrix is a test point, each column is a train point, and the matrix
+element (i, j) is the distance between test point i and train point j.
+This matrix will be used to figure out each test point’s nearest
+neighbors.
+
+``` r
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+ptm <- proc.time()
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+  }
+}
+proc.time() - ptm
+```
+
+    ##    user  system elapsed 
+    ## 182.212  23.604 206.213
+
+``` r
+# ~3.5 minutes
+```
+
+calculate local centroids and assign test point to nearest local
+centroid
+
+``` r
+# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+
+max_k <- 40
+usps_test_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # i <- 4
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = max_k (max_k predictions per test point)
+  z <- rep(max_dist, 10) # vector to store local centroids of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:max_k){ # predictions for k = 1 to k = max_k
+    # loop through the k neighbors calculating centroids & dist to test point i
+
+    neighbors <- data.frame(usps_train_labels, 
+                              usps_train)[as.integer(rownames(trSetLabDist[1:k, ])), ]
+    # neighbors[, 1:12]
+    
+    for (lbl in unique(neighbors[, 'usps_train_labels'])){
+      #print(lbl)
+      #print(neighbors[neighbors$usps_train_labels == lbl, 1:12])
+      #neighbors[neighbors$usps_train_labels == lbl, -1]
+      
+      # group neighbors by label
+      lbl_neighbors <- neighbors[neighbors$usps_train_labels == lbl, -1]
+      #print(lbl_neighbors[, 1:5])
+      
+      # calculate local centroid for each label
+      lbl_centroid <- colSums(lbl_neighbors)/nrow(lbl_neighbors)
+      #print(lbl_centroid[1:5])
+      
+      # calculate distance from i to each centroid
+      z[which(z_labels == lbl)] <- euclidean_dist(usps_test[i, ], lbl_centroid)
+      #print(z)
+    }
+
+    usps_test_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1) # assign to class with smallest z i.e. nearest local centroid; in case of tie, pick randomly
+  }
+} 
+
+head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+```
+
+    ##      usps_test_labels   
+    ## [1,]               10 10
+    ## [2,]                7  7
+    ## [3,]                4  4
+    ## [4,]                7  7
+    ## [5,]                7  7
+    ## [6,]                1  1
+
+Calculate and plot error rates for the max_k k values
+
+``` r
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_cent <- numeric(max_k)
+for(i in 1:max_k){
+  errorRate_Euclidean_cent [i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent [, i]), usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_cent
+```
+
+    ##  [1] 0.05630294 0.05630294 0.05331340 0.04982561 0.04683607 0.04683607
+    ##  [7] 0.04484305 0.04633782 0.04484305 0.04285002 0.04534131 0.04534131
+    ## [13] 0.04534131 0.04683607 0.04633782 0.04583956 0.04633782 0.04534131
+    ## [19] 0.04484305 0.04434479 0.04534131 0.04484305 0.04434479 0.04583956
+    ## [25] 0.04783259 0.04633782 0.04733433 0.04534131 0.04583956 0.04683607
+    ## [31] 0.04534131 0.04683607 0.04633782 0.04583956 0.04583956 0.04583956
+    ## [37] 0.04733433 0.04783259 0.04833084 0.04882910
+
+``` r
+plot(1:max_k, errorRate_Euclidean_cent,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.04, 0.057))
+```
+
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-26-1.png" width="672" />
+
+Session info
+
+``` r
+R.Version()
+```
+
+    ## $platform
+    ## [1] "x86_64-apple-darwin13.4.0"
+    ## 
+    ## $arch
+    ## [1] "x86_64"
+    ## 
+    ## $os
+    ## [1] "darwin13.4.0"
+    ## 
+    ## $system
+    ## [1] "x86_64, darwin13.4.0"
+    ## 
+    ## $status
+    ## [1] ""
+    ## 
+    ## $major
+    ## [1] "4"
+    ## 
+    ## $minor
+    ## [1] "1.3"
+    ## 
+    ## $year
+    ## [1] "2022"
+    ## 
+    ## $month
+    ## [1] "03"
+    ## 
+    ## $day
+    ## [1] "10"
+    ## 
+    ## $`svn rev`
+    ## [1] "81868"
+    ## 
+    ## $language
+    ## [1] "R"
+    ## 
+    ## $version.string
+    ## [1] "R version 4.1.3 (2022-03-10)"
+    ## 
+    ## $nickname
+    ## [1] "One Push-Up"
+
+``` r
+R.version
+```
+
+    ##                _                           
+    ## platform       x86_64-apple-darwin13.4.0   
+    ## arch           x86_64                      
+    ## os             darwin13.4.0                
+    ## system         x86_64, darwin13.4.0        
+    ## status                                     
+    ## major          4                           
+    ## minor          1.3                         
+    ## year           2022                        
+    ## month          03                          
+    ## day            10                          
+    ## svn rev        81868                       
+    ## language       R                           
+    ## version.string R version 4.1.3 (2022-03-10)
+    ## nickname       One Push-Up
+
+``` r
+version
+```
+
+    ##                _                           
+    ## platform       x86_64-apple-darwin13.4.0   
+    ## arch           x86_64                      
+    ## os             darwin13.4.0                
+    ## system         x86_64, darwin13.4.0        
+    ## status                                     
+    ## major          4                           
+    ## minor          1.3                         
+    ## year           2022                        
+    ## month          03                          
+    ## day            10                          
+    ## svn rev        81868                       
+    ## language       R                           
+    ## version.string R version 4.1.3 (2022-03-10)
+    ## nickname       One Push-Up
+
+``` r
+sessionInfo()
+```
+
+    ## R version 4.1.3 (2022-03-10)
+    ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
+    ## Running under: macOS Big Sur/Monterey 10.16
+    ## 
+    ## Matrix products: default
+    ## BLAS/LAPACK: /Users/felix.mbuga/opt/anaconda3/envs/rstud/lib/libopenblasp-r0.3.20.dylib
+    ## 
+    ## locale:
+    ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ##  [1] microbenchmark_1.4.9 forcats_0.5.2        stringr_1.4.1       
+    ##  [4] dplyr_1.0.10         purrr_0.3.4          readr_2.1.2         
+    ##  [7] tidyr_1.2.1          tibble_3.1.8         tidyverse_1.3.2     
+    ## [10] caret_6.0-93         lattice_0.20-45      ggplot2_3.3.6       
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] nlme_3.1-159         fs_1.5.2             bit64_4.0.5         
+    ##  [4] lubridate_1.8.0      httr_1.4.4           tools_4.1.3         
+    ##  [7] backports_1.4.1      utf8_1.2.2           R6_2.5.1            
+    ## [10] rpart_4.1.16         DBI_1.1.3            colorspace_2.0-3    
+    ## [13] nnet_7.3-17          withr_2.5.0          tidyselect_1.1.2    
+    ## [16] curl_4.3.2           bit_4.0.4            compiler_4.1.3      
+    ## [19] cli_3.4.1            rvest_1.0.3          xml2_1.3.3          
+    ## [22] sandwich_3.0-2       scales_1.2.1         mvtnorm_1.1-3       
+    ## [25] proxy_0.4-27         digest_0.6.29        rmarkdown_2.16      
+    ## [28] pkgconfig_2.0.3      htmltools_0.5.3      parallelly_1.32.1   
+    ## [31] dbplyr_2.2.1         fastmap_1.1.0        highr_0.9           
+    ## [34] rlang_1.0.5          readxl_1.4.1         rstudioapi_0.14     
+    ## [37] generics_0.1.3       zoo_1.8-11           jsonlite_1.8.0      
+    ## [40] vroom_1.5.7          ModelMetrics_1.2.2.2 googlesheets4_1.0.1 
+    ## [43] magrittr_2.0.3       Matrix_1.5-1         Rcpp_1.0.9          
+    ## [46] munsell_0.5.0        fansi_1.0.3          lifecycle_1.0.2     
+    ## [49] multcomp_1.4-20      stringi_1.7.8        pROC_1.18.0         
+    ## [52] yaml_2.3.5           MASS_7.3-58.1        plyr_1.8.7          
+    ## [55] recipes_1.0.1        grid_4.1.3           parallel_4.1.3      
+    ## [58] listenv_0.8.0        crayon_1.5.1         haven_2.5.1         
+    ## [61] splines_4.1.3        hms_1.1.2            knitr_1.40          
+    ## [64] pillar_1.8.1         future.apply_1.9.1   reshape2_1.4.4      
+    ## [67] codetools_0.2-18     stats4_4.1.3         reprex_2.0.2        
+    ## [70] glue_1.6.2           evaluate_0.16        data.table_1.14.2   
+    ## [73] modelr_0.1.9         vctrs_0.4.1          tzdb_0.3.0          
+    ## [76] foreach_1.5.2        cellranger_1.1.0     gtable_0.3.1        
+    ## [79] future_1.28.0        assertthat_0.2.1     xfun_0.33           
+    ## [82] gower_1.0.0          prodlim_2019.11.13   broom_1.0.1         
+    ## [85] e1071_1.7-11         class_7.3-20         survival_3.4-0      
+    ## [88] googledrive_2.0.0    gargle_1.2.1         timeDate_4021.104   
+    ## [91] iterators_1.0.14     hardhat_1.2.0        lava_1.6.10         
+    ## [94] globals_0.16.1       TH.data_1.1-1        ellipsis_0.3.2      
+    ## [97] ipred_0.9-13
+
+``` r
+# rm(list = ls())
+```
