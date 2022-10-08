@@ -36,6 +36,7 @@ head(iris.data)
     ## 6          5.4         3.9          1.7         0.4 Iris-setosa
 
 ``` r
+# encode 5th column (Species) as categorical variable
 iris.data[5] <- factor(iris.data[[5]])
 
 str(iris.data)
@@ -67,14 +68,15 @@ summary(iris.data)
     ##                      
     ## 
 
-`str` tells us the dataset has 150 rows (observations) and 5 variables
-(columns), and that four of the columns are numeric (continuous)
-variables and the `Species` column is categorical with 3 levels.
+`str` tells us - the dataset has 150 rows (observations) and 5 variables
+(columns) - four of the columns are numeric (continuous) variables - the
+`Species` column is categorical with 3 levels
 
-`summary` tells us that the dataset has no missing values (NAs) and that
-the observations are equally divided into the three `Species`
+`summary` tells us - the dataset has no missing values (NAs) - the
+observations are equally divided into the three `Species`
 
 ``` r
+# pairs plot of the data coloring by Species column
 pairs(~ ., data = iris.data[-5], 
       col = factor(iris.data[[5]])) 
 ```
@@ -89,13 +91,7 @@ testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
 ``` r
 # load caret package
 library(caret)
-```
 
-    ## Loading required package: ggplot2
-
-    ## Loading required package: lattice
-
-``` r
 # 5-fold, 10-fold, and leave-one-out (LOO) CV
 numFolds <- c(5, 10, 150)
 
@@ -117,12 +113,7 @@ fitList[[i]] <- train(Species ~ .,
                         metric = "Accuracy",
                         data = iris.data)
 }
-```
 
-    ## Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo, :
-    ## There were missing values in resampled performance measures.
-
-``` r
 # fitList
 # str(fitList)
 ```
@@ -156,46 +147,13 @@ Load the data
 
 ``` r
 library(tidyverse)
-```
-
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
-    ## ✔ purrr   0.3.4      
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ✖ purrr::lift()   masks caret::lift()
-
-``` r
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
   delim = " ", col_names = FALSE)
-```
-
-    ## Rows: 7291 Columns: 258
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## lgl   (1): X258
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
   delim = " ", col_names = FALSE)
 ```
-
-    ## Rows: 2007 Columns: 257
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 Look at the data.
 
@@ -319,7 +277,7 @@ system.time({
 ```
 
     ##    user  system elapsed 
-    ## 508.653  77.353 589.385
+    ## 518.429  85.339 604.660
 
 took \~ 630s to create the matrices
 
@@ -459,32 +417,10 @@ library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
   delim = " ", col_names = FALSE)
-```
-
-    ## Rows: 7291 Columns: 258
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## lgl   (1): X258
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
   delim = " ", col_names = FALSE)
-```
 
-    ## Rows: 2007 Columns: 257
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 # str(usps_train)
 
 usps_train <- as.matrix(usps_train)
@@ -531,9 +467,9 @@ microbenchmark(inv(M),
 ```
 
     ## Unit: milliseconds
-    ##              expr       min        lq      mean    median       uq      max
-    ##            inv(M)  1.609122  1.714135  3.498266  2.022558  4.32466 24.69111
-    ##  apply(M, 1, inv) 13.958552 15.146995 21.159495 16.740110 21.51399 59.59920
+    ##              expr       min        lq      mean    median        uq      max
+    ##            inv(M)  1.362286  1.700369  3.287303  1.844937  4.155216 28.69861
+    ##  apply(M, 1, inv) 13.481559 14.803025 21.273377 16.490991 21.063174 73.93187
     ##  neval cld
     ##    100  a 
     ##    100   b
@@ -584,7 +520,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 185.412  24.892 210.692
+    ## 187.837  29.781 217.915
 
 ``` r
 # ~3.5 minutes
@@ -779,40 +715,18 @@ gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb) max used  (Mb)
-    ## Ncells 2696976 144.1    4906922 262.1  4906922 262.1
-    ## Vcells 4598459  35.1   72902182 556.2 91127727 695.3
+    ## Ncells 2696113 144.0    4895551 261.5  4895551 261.5
+    ## Vcells 4596085  35.1   72899204 556.2 91124004 695.3
 
 ``` r
 library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
   delim = " ", col_names = FALSE)
-```
-
-    ## Rows: 7291 Columns: 258
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## lgl   (1): X258
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
   delim = " ", col_names = FALSE)
-```
 
-    ## Rows: 2007 Columns: 257
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: " "
-    ## dbl (257): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15,...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 # str(usps_train)
 
 usps_train <- as.matrix(usps_train)
@@ -871,7 +785,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 182.212  23.604 206.213
+    ## 180.770  21.415 202.365
 
 ``` r
 # ~3.5 minutes

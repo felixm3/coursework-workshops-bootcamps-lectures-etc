@@ -5,8 +5,14 @@ date: '2022-08-08'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.retina = 2)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.retina = 2,
+  message = FALSE,
+  warning = FALSE
+)
+
 ```
 
 ## Iris
@@ -34,6 +40,7 @@ iris.data <- read.csv(
 
 head(iris.data)
 
+# encode 5th column (Species) as categorical variable
 iris.data[5] <- factor(iris.data[[5]])
 
 str(iris.data)
@@ -41,13 +48,19 @@ str(iris.data)
 summary(iris.data)
 
 ```
-`str` tells us the dataset has 150 rows (observations) and 5 variables (columns), and that four of the columns are numeric (continuous) variables and the `Species` column is categorical with 3 levels.
+`str` tells us 
+- the dataset has 150 rows (observations) and 5 variables (columns)
+- four of the columns are numeric (continuous) variables
+- the `Species` column is categorical with 3 levels
 
-`summary` tells us that the dataset has no missing values (NAs) and that the observations are equally divided into the three `Species`
+`summary` tells us
+- the dataset has no missing values (NAs)
+- the observations are equally divided into the three `Species`
 
 
 ```{r}
 
+# pairs plot of the data coloring by Species column
 pairs(~ ., data = iris.data[-5], 
       col = factor(iris.data[[5]])) 
 
