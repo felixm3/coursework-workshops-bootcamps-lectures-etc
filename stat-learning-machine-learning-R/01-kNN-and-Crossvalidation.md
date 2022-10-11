@@ -4,7 +4,7 @@
 
 ## Iris
 
-PROBLEM STATEMENT: for the *k*NN classifier, compare the 5-fold,
+**PROBLEM STATEMENT**: for the *k*NN classifier, compare the 5-fold,
 10-fold, and leave-one-out cross-validation error rates for *k* = 1, …,
 50 on the classic `Iris` dataset
 
@@ -68,17 +68,29 @@ summary(iris.data)
     ##                      
     ## 
 
-`str` tells us - the dataset has 150 rows (observations) and 5 variables
-(columns) - four of the columns are numeric (continuous) variables - the
-`Species` column is categorical with 3 levels
+`str` tells us
 
-`summary` tells us - the dataset has no missing values (NAs) - the
-observations are equally divided into the three `Species`
+-   the dataset has 150 observations (rows) and 5 variables (columns)
+-   four of the columns are numeric (continuous) variables
+-   the `Species` column is categorical with 3 levels
+
+`summary` tells us
+
+-   the dataset has no missing values (NAs)
+-   the observations are equally divided into the three `Species`
+-   the variables are in different ranges and should therefore be scaled
+    before *k*NN
 
 ``` r
 # pairs plot of the data coloring by Species column
 pairs(~ ., data = iris.data[-5], 
-      col = factor(iris.data[[5]])) 
+      col = factor(iris.data[[5]]), 
+      oma = c(3, 3, 3, 14)) 
+
+par(xpd = TRUE)
+legend("bottomright", 
+       fill = unique(iris$Species), 
+       legend = c(levels(iris$Species)))
 ```
 
 <img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-3-1.png" width="672" />
@@ -108,7 +120,8 @@ for(i in 1:length(numFolds)){
 set.seed(1250)
 fitList[[i]] <- train(Species ~ .,
                         method = "knn",
-                        tuneGrid = expand.grid(k = 1:50),
+                        tuneGrid = expand.grid(k = 1:50), 
+                        preProcess = c("center", "scale"), 
                         trControl = trControl,
                         metric = "Accuracy",
                         data = iris.data)
@@ -128,8 +141,13 @@ plot(1:50, 1-fitList[[1]]$results$Accuracy,
      xlab = "k (number of nearest neighbors used)", 
      ylab = "Cross-Validation Error Rate", 
      ylim = c(0.01, 0.091))
-points(1:50, 1-fitList[[2]]$results$Accuracy, type = "o", col = "blue")
-points(1:50, 1-fitList[[3]]$results$Accuracy, type = "o", col = "black")
+
+points(1:50, 1-fitList[[2]]$results$Accuracy, 
+       type = "o", col = "blue")
+
+points(1:50, 1-fitList[[3]]$results$Accuracy, 
+       type = "o", col = "black")
+
 legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
        col = c("red", "blue", "black"), lty = 1)
 ```
@@ -138,24 +156,24 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 ## *k*NN classifer with different distance metrics: USPS digits
 
-PROBLEM STATEMENT: for the *k*NN classifier, compare the test error
+**PROBLEM STATEMENT**: for the *k*NN classifier, compare the test error
 rates for three different distance metrics (Euclidean, Manhattan,
 cosine) on the [USPS handwritten zip code digits
 dataset](https://hastie.su.domains/ElemStatLearn/data.html)
 
-Load the data
+### Load the data
 
 ``` r
 library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 ```
 
-Look at the data.
+### Look at the data.
 
 [Each row
 is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the
@@ -277,7 +295,7 @@ system.time({
 ```
 
     ##    user  system elapsed 
-    ## 518.429  85.339 604.660
+    ## 533.443  88.230 623.977
 
 took \~ 630s to create the matrices
 
@@ -467,9 +485,9 @@ microbenchmark(inv(M),
 ```
 
     ## Unit: milliseconds
-    ##              expr       min        lq      mean    median        uq      max
-    ##            inv(M)  1.362286  1.700369  3.287303  1.844937  4.155216 28.69861
-    ##  apply(M, 1, inv) 13.481559 14.803025 21.273377 16.490991 21.063174 73.93187
+    ##              expr       min        lq      mean    median       uq      max
+    ##            inv(M)  1.350412  1.702676  3.486061  1.751827  4.11231 31.49772
+    ##  apply(M, 1, inv) 13.669532 14.757606 20.273381 16.082692 20.67734 61.11075
     ##  neval cld
     ##    100  a 
     ##    100   b
@@ -520,7 +538,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 187.837  29.781 217.915
+    ## 195.314  32.447 231.973
 
 ``` r
 # ~3.5 minutes
@@ -715,8 +733,8 @@ gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb) max used  (Mb)
-    ## Ncells 2696113 144.0    4895551 261.5  4895551 261.5
-    ## Vcells 4596085  35.1   72899204 556.2 91124004 695.3
+    ## Ncells 2705311 144.5    4977384 265.9  4977384 265.9
+    ## Vcells 4618419  35.3   72858343 555.9 91072928 694.9
 
 ``` r
 library(tidyverse)
@@ -785,7 +803,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 180.770  21.415 202.365
+    ## 184.992  24.105 210.143
 
 ``` r
 # ~3.5 minutes
