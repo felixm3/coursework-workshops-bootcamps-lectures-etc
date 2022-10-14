@@ -58,7 +58,7 @@ summary(iris.data)
 
 * the dataset has no missing values (NAs)
 * the observations are equally divided into the three `Species`
-* the variables are in different ranges and should therefore be scaled before *k*NN
+* the variables are in different ranges and should therefore probably be scaled before *k*NN
 
 
 
@@ -78,7 +78,7 @@ legend("bottomright",
 
 ### Fit and Validate the *k*NN Model
 
-We use the `caret` package for model-fitting and for cross-validation, testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
+Let's use the `caret` package for model-fitting and for cross-validation, testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
 
 ```{r}
 
@@ -123,7 +123,7 @@ plot(1:50, 1-fitList[[1]]$results$Accuracy,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", 
      ylab = "Cross-Validation Error Rate", 
-     ylim = c(0.01, 0.091))
+     ylim = c(0.03, 0.14))
 
 points(1:50, 1-fitList[[2]]$results$Accuracy, 
        type = "o", col = "blue")
@@ -154,7 +154,7 @@ usps_test <- read_delim(
 
 ```
 
-### Look at the data.
+### Look at the data
 
 [Each row is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the 256 normalized grayscale values of the 16 x 16 pixel image of a digit.
 
@@ -188,7 +188,7 @@ str(usps_train)
 str(usps_test)
 
 ```
-Convert labels to factors
+Encode labels as categorical variables (factors)
 
 ```{r}
 
@@ -200,7 +200,9 @@ str(usps_test_labels)
 
 ```
 
-Define functions that calculate distance (Euclidean, Manhattan, cosine) between two vectors. These will be used to calculate the `n x m` distances between each of the `n` test points and all the `m` train points 
+Define functions that calculate distance (Euclidean, Manhattan, cosine) between two vectors.
+
+These will be used to calculate the `n x m` distances between each of the `n` test points and all the `m` train points. 
 
 ```{r define distance functions}
 
@@ -237,7 +239,7 @@ distances_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
 Populate the distance matrices
 
 
-kNN usually requires scaling before calculating distances to ensure all features are on the same footing. But since this data has already been scaled (all values between -1 and 1), this step was skipped.
+kNN usually requires scaling before calculating distances to ensure all features are on the same footing. But since this data has already been scaled (all values are between -1 and 1), this step was skipped.
 
 ```{r}
 
@@ -253,15 +255,18 @@ system.time({
 
 ```
 
-took ~ 630s to create the matrices
-
-- how to compare 2 matrices?
-  - element-wise correlation
+---
+# took ~ 630s to create the matrices
+# - how to compare 2 matrices?
+#  - element-wise correlation
+  
+---
 
 ```{r}
 
 # create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
 usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+
 # for each test point i
 for(i in 1:nrow(usps_test)){
   # cbind train set, train labels and dist[i, ] and sort by distance
@@ -275,7 +280,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 } #74.241 sec
 
@@ -299,7 +305,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 }
 
@@ -319,7 +326,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 }
 ```
@@ -332,17 +340,20 @@ library(caret) # for function confusionMatrix
 
 errorRate_Euclidean <- numeric(10)
 for(i in 1:10){
-  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), 
+                                                usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Manhattan <- numeric(10)
 for(i in 1:10){
-  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), 
+                                                usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Cosine <- numeric(10)
 for(i in 1:10){
-  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), 
+                                             usps_test_labels)$overall["Accuracy"]
 }
 
 ```
@@ -356,8 +367,10 @@ plot(1:10, errorRate_Euclidean,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
      ylim = c(0.05, 0.08))
-points(1:10, errorRate_Manhattan, type = "o", col = "blue")
-points(1:10, errorRate_Cosine, type = "o", col = "black")
+points(1:10, errorRate_Manhattan, 
+       type = "o", col = "blue")
+points(1:10, errorRate_Cosine, 
+       type = "o", col = "black")
 legend("top", legend = c("Euclidean", "Manhattan", "Cosine"),
        col = c("red", "blue", "black"), lty = 1)
 
