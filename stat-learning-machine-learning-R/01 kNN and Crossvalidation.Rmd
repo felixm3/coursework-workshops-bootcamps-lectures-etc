@@ -382,7 +382,7 @@ cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
 
 ## weighted *k*NN USPS digits
 
-PROBLEM STATEMENT: apply the weighted *k*NN classifier (Euclidean distance, weights: inverse, squared inverse, and linear) on the [USPS handwritten zip code digits dataset](https://hastie.su.domains/ElemStatLearn/data.html) and compare test errors. 
+**PROBLEM STATEMENT**: apply the weighted *k*NN classifier (Euclidean distance, weights: inverse, squared inverse, and linear) on the [USPS handwritten zip code digits dataset](https://hastie.su.domains/ElemStatLearn/data.html) and compare test errors. 
 
 Load the data
 
@@ -420,6 +420,25 @@ str(usps_train_labels)
 str(usps_test_labels)
 
 ```
+
+<details>
+  <summary>**Is it faster to apply a function to a matrix directly `foo(M)` or to use `apply` to do it `apply(M, c(1, 2), foo)`?**</summary>
+
+```{r}
+library(microbenchmark)
+
+inv <- function(x){1/x}
+
+M <- matrix(1:1000000, nrow = 1000)
+
+microbenchmark(inv(M), 
+               apply(M, 1, inv))
+```
+
+On average, using the function directly on the matrix is ~7X faster than using `apply`
+
+</details>
+
 
 Is it faster to apply a function to a matrix directly `foo(M)` or to use `apply` to do it `apply(M, c(1, 2), foo)`?
 

@@ -78,8 +78,8 @@ summary(iris.data)
 
 -   the dataset has no missing values (NAs)
 -   the observations are equally divided into the three `Species`
--   the variables are in different ranges and should therefore be scaled
-    before *k*NN
+-   the variables are in different ranges and should therefore probably
+    be scaled before *k*NN
 
 ``` r
 # pairs plot of the data coloring by Species column
@@ -97,8 +97,9 @@ legend("bottomright",
 
 ### Fit and Validate the *k*NN Model
 
-We use the `caret` package for model-fitting and for cross-validation,
-testing 5-fold, 10-fold, and leave-one-out cross-validation (CV)
+Let’s use the `caret` package for model-fitting and for
+cross-validation, testing 5-fold, 10-fold, and leave-one-out
+cross-validation (CV)
 
 ``` r
 # load caret package
@@ -140,7 +141,7 @@ plot(1:50, 1-fitList[[1]]$results$Accuracy,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", 
      ylab = "Cross-Validation Error Rate", 
-     ylim = c(0.01, 0.091))
+     ylim = c(0.03, 0.14))
 
 points(1:50, 1-fitList[[2]]$results$Accuracy, 
        type = "o", col = "blue")
@@ -173,7 +174,7 @@ usps_test <- read_delim(
   delim = " ", col_names = FALSE, show_col_types = FALSE)
 ```
 
-### Look at the data.
+### Look at the data
 
 [Each row
 is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the
@@ -222,7 +223,7 @@ str(usps_test)
     ##   ..$ : NULL
     ##   ..$ : chr [1:256] "X2" "X3" "X4" "X5" ...
 
-Convert labels to factors
+Encode labels as categorical variables (factors)
 
 ``` r
 usps_train_labels <- factor(usps_train_labels)
@@ -240,9 +241,10 @@ str(usps_test_labels)
     ##  Factor w/ 10 levels "0","1","2","3",..: 10 7 4 7 7 1 1 1 7 10 ...
 
 Define functions that calculate distance (Euclidean, Manhattan, cosine)
-between two vectors. These will be used to calculate the `n x m`
-distances between each of the `n` test points and all the `m` train
-points
+between two vectors.
+
+These will be used to calculate the `n x m` distances between each of
+the `n` test points and all the `m` train points.
 
 ``` r
 euclidean_dist <- function(x1, x2){
@@ -280,7 +282,7 @@ Populate the distance matrices
 
 kNN usually requires scaling before calculating distances to ensure all
 features are on the same footing. But since this data has already been
-scaled (all values between -1 and 1), this step was skipped.
+scaled (all values are between -1 and 1), this step was skipped.
 
 ``` r
 system.time({
@@ -295,16 +297,12 @@ system.time({
 ```
 
     ##    user  system elapsed 
-    ## 533.443  88.230 623.977
-
-took \~ 630s to create the matrices
-
--   how to compare 2 matrices?
-    -   element-wise correlation
+    ## 543.907  96.358 642.292
 
 ``` r
 # create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
 usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
+
 # for each test point i
 for(i in 1:nrow(usps_test)){
   # cbind train set, train labels and dist[i, ] and sort by distance
@@ -318,7 +316,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Euclidean[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 } #74.241 sec
 ```
@@ -341,7 +340,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Manhattan[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 }
 
@@ -361,7 +361,8 @@ for(i in 1:nrow(usps_test)){
     for(m in 1:10){ # count how many times each class appears in the k neighbors
       z[m] <- sum(trSetLabDist[1:k, "usps_train_labels"] == z_labels[m])
     }
-    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Cosine[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 }
 ```
@@ -373,17 +374,20 @@ library(caret) # for function confusionMatrix
 
 errorRate_Euclidean <- numeric(10)
 for(i in 1:10){
-  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean[, i]), 
+                                                usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Manhattan <- numeric(10)
 for(i in 1:10){
-  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Manhattan[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Manhattan[, i]), 
+                                                usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Cosine <- numeric(10)
 for(i in 1:10){
-  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Cosine[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Cosine[, i]), 
+                                             usps_test_labels)$overall["Accuracy"]
 }
 ```
 
@@ -394,8 +398,10 @@ plot(1:10, errorRate_Euclidean,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
      ylim = c(0.05, 0.08))
-points(1:10, errorRate_Manhattan, type = "o", col = "blue")
-points(1:10, errorRate_Cosine, type = "o", col = "black")
+points(1:10, errorRate_Manhattan, 
+       type = "o", col = "blue")
+points(1:10, errorRate_Cosine, 
+       type = "o", col = "black")
 legend("top", legend = c("Euclidean", "Manhattan", "Cosine"),
        col = c("red", "blue", "black"), lty = 1)
 ```
@@ -422,7 +428,7 @@ cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
 
 ## weighted *k*NN USPS digits
 
-PROBLEM STATEMENT: apply the weighted *k*NN classifier (Euclidean
+**PROBLEM STATEMENT**: apply the weighted *k*NN classifier (Euclidean
 distance, weights: inverse, squared inverse, and linear) on the [USPS
 handwritten zip code digits
 dataset](https://hastie.su.domains/ElemStatLearn/data.html) and compare
@@ -470,6 +476,36 @@ str(usps_test_labels)
 
     ##  Factor w/ 10 levels "0","1","2","3",..: 10 7 4 7 7 1 1 1 7 10 ...
 
+<details>
+<summary>
+**Is it faster to apply a function to a matrix directly `foo(M)` or to
+use `apply` to do it `apply(M, c(1, 2), foo)`?**
+</summary>
+
+``` r
+library(microbenchmark)
+
+inv <- function(x){1/x}
+
+M <- matrix(1:1000000, nrow = 1000)
+
+microbenchmark(inv(M), 
+               apply(M, 1, inv))
+```
+
+    ## Unit: milliseconds
+    ##              expr       min       lq      mean    median        uq      max
+    ##            inv(M)  1.352345  1.70697  3.501532  1.777271  4.197451 28.40003
+    ##  apply(M, 1, inv) 13.832469 14.87703 20.779234 16.344920 21.213323 63.03932
+    ##  neval cld
+    ##    100  a 
+    ##    100   b
+
+On average, using the function directly on the matrix is \~7X faster
+than using `apply`
+
+</details>
+
 Is it faster to apply a function to a matrix directly `foo(M)` or to use
 `apply` to do it `apply(M, c(1, 2), foo)`?
 
@@ -485,9 +521,9 @@ microbenchmark(inv(M),
 ```
 
     ## Unit: milliseconds
-    ##              expr       min        lq      mean    median       uq      max
-    ##            inv(M)  1.350412  1.702676  3.486061  1.751827  4.11231 31.49772
-    ##  apply(M, 1, inv) 13.669532 14.757606 20.273381 16.082692 20.67734 61.11075
+    ##              expr       min        lq      mean    median        uq       max
+    ##            inv(M)  1.157439  1.459363  3.172985  1.709917  3.642806  23.85245
+    ##  apply(M, 1, inv) 12.063547 13.905705 19.760775 16.025689 18.763351 165.00343
     ##  neval cld
     ##    100  a 
     ##    100   b
@@ -509,7 +545,7 @@ curve(inv_sqr, add = TRUE, col = "red")
 curve(lin, add = TRUE, col = "blue")
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-16-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-17-1.png" width="672" />
 
 Create Euclidean distance matrix to store Euclidean distances between
 each test point and all the train points. Each row of the distance
@@ -538,7 +574,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 195.314  32.447 231.973
+    ## 186.351  27.847 214.419
 
 ``` r
 # ~3.5 minutes
@@ -683,7 +719,7 @@ legend("top", legend = c("inverse", "squared inverse", "linear"),
        col = c("red", "blue", "black"), lty = 1)
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-22-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-23-1.png" width="672" />
 
 ``` r
 cbind(errorRate_Euclidean_inv, errorRate_Euclidean_inv_sqr, errorRate_Euclidean_lin)
@@ -733,8 +769,8 @@ gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb) max used  (Mb)
-    ## Ncells 2705311 144.5    4977384 265.9  4977384 265.9
-    ## Vcells 4618419  35.3   72858343 555.9 91072928 694.9
+    ## Ncells 2705478 144.5    4979047 266.0  4979047 266.0
+    ## Vcells 4618988  35.3   72859026 555.9 91073782 694.9
 
 ``` r
 library(tidyverse)
@@ -803,7 +839,7 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 184.992  24.105 210.143
+    ## 184.110  25.727 210.224
 
 ``` r
 # ~3.5 minutes
@@ -896,7 +932,7 @@ plot(1:max_k, errorRate_Euclidean_cent,
      ylim = c(0.04, 0.057))
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-26-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-27-1.png" width="672" />
 
 Session info
 
