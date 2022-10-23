@@ -2,7 +2,7 @@
 ================
 2022-08-08
 
-## Iris
+## Intro to *k*NN Classification & Cross-Validation: Iris
 
 **PROBLEM STATEMENT**: for the *k*NN classifier, compare the 5-fold,
 10-fold, and leave-one-out cross-validation error rates for *k* = 1, …,
@@ -68,6 +68,13 @@ summary(iris.data)
     ##                      
     ## 
 
+``` r
+# confirm no missing values (NA)
+sum(is.na(iris.data))
+```
+
+    ## [1] 0
+
 `str` tells us
 
 -   the dataset has 150 observations (rows) and 5 variables (columns)
@@ -76,7 +83,8 @@ summary(iris.data)
 
 `summary` tells us
 
--   the dataset has no missing values (NAs)
+-   the dataset has no missing values (NAs) - confirmed by
+    `sum(is.na(iris.data))`
 -   the observations are equally divided into the three `Species`
 -   the variables are in different ranges and should therefore probably
     be scaled before *k*NN
@@ -155,6 +163,15 @@ legend("topleft", legend = c("5-fold CV", "10-fold CV", "LOOCV"),
 
 <img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-5-1.png" width="672" />
 
+-   CV error rate at first decreases with increasing number of nearest
+    neighbors used
+-   it then levels out before increasing, forming the familiar
+    bias-variance tradeoff U-curve
+-   Lowest CV error rate seen with \~7-18 nearest neighbors.
+-   CV error rate generally increases with 5-fold \> 10-fold \> LOOCV
+
+------------------------------------------------------------------------
+
 ## *k*NN classifer with different distance metrics: USPS digits
 
 **PROBLEM STATEMENT**: for the *k*NN classifier, compare the test error
@@ -178,7 +195,8 @@ usps_test <- read_delim(
 
 [Each row
 is](https://hastie.su.domains/ElemStatLearn/datasets/zip.info.txt) the
-256 normalized grayscale values of the 16 x 16 pixel image of a digit.
+256 normalized grayscale values of the 16 x 16 pixel image of a
+handwritten digit.
 
 The first column contains the identity (label) of the digit. The last
 column of `usps_train` is all NA.
@@ -257,7 +275,8 @@ manhattan_dist <- function(x1, x2){
 }
 cosine_dist <- function(x1, x2){
   # calculates Cosine distance between vectors x1 and x2
-  # note, however, that the cosine distance is not a proper distance metric as it does not have the triangle inequality property
+  # note, however, that the cosine distance is not a proper distance metric 
+  # as it does not have the triangle inequality property
   # ?`%*%`
   return(1 - ((x1 %*% x2)/(sqrt(x1 %*% x1) * sqrt(x2 %*% x2))))
 }
@@ -268,9 +287,9 @@ Calculate distance matrices
 For the three ‘distances’ (Euclidean, Manhattan, cosine), we create a
 matrix to store distances between each test point and all the train
 points. Each row of the distance matrix is a test point, each column is
-a train point, and the element (i, j) is the distance between test point
-i and train point j. This matrix will be used to figure out each test
-point’s nearest neighbors.
+a train point, and the element `(i, j)` is the distance between test
+point `i` and train point `j`. This matrix will be used to figure out
+each test point’s nearest neighbors.
 
 ``` r
 distances_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
@@ -280,9 +299,9 @@ distances_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
 
 Populate the distance matrices
 
-kNN usually requires scaling before calculating distances to ensure all
-features are on the same footing. But since this data has already been
-scaled (all values are between -1 and 1), this step was skipped.
+*k*NN usually requires scaling before calculating distances to ensure
+all features are on the same footing. But since this data has already
+been scaled (all values are between -1 and 1), this step was skipped.
 
 ``` r
 system.time({
@@ -297,10 +316,10 @@ system.time({
 ```
 
     ##    user  system elapsed 
-    ## 543.907  96.358 642.292
+    ## 537.009  93.808 636.130
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 usps_test_pred_Euclidean <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 
 # for each test point i
@@ -325,7 +344,7 @@ for(i in 1:nrow(usps_test)){
 Now do for Manhattan and cosine distance
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 usps_test_pred_Manhattan <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
 for(i in 1:nrow(usps_test)){
@@ -346,7 +365,7 @@ for(i in 1:nrow(usps_test)){
 }
 
 
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 usps_test_pred_Cosine <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
 for(i in 1:nrow(usps_test)){
@@ -424,9 +443,13 @@ cbind(errorRate_Cosine, errorRate_Euclidean, errorRate_Manhattan)
     ##  [9,]       0.06327853          0.06128550          0.07224714
     ## [10,]       0.06477329          0.06228201          0.07673144
 
-*how do I add error bars to above graph?*
+-   using Manhattan distance resulted in highest error rates
+-   Euclidean and cosine distances were similar to each other in
+    performance
 
-## weighted *k*NN USPS digits
+------------------------------------------------------------------------
+
+## weighted *k*NN: USPS digits
 
 **PROBLEM STATEMENT**: apply the weighted *k*NN classifier (Euclidean
 distance, weights: inverse, squared inverse, and linear) on the [USPS
@@ -440,10 +463,10 @@ Load the data
 library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 
 # str(usps_train)
 
@@ -478,8 +501,8 @@ str(usps_test_labels)
 
 <details>
 <summary>
-**Is it faster to apply a function to a matrix directly `foo(M)` or to
-use `apply` to do it `apply(M, c(1, 2), foo)`?**
+Is it faster to apply a function to a matrix directly `foo(M)` or to use
+`apply` to do it `apply(M, c(1, 2), foo)`?
 </summary>
 
 ``` r
@@ -494,9 +517,9 @@ microbenchmark(inv(M),
 ```
 
     ## Unit: milliseconds
-    ##              expr       min       lq      mean    median        uq      max
-    ##            inv(M)  1.352345  1.70697  3.501532  1.777271  4.197451 28.40003
-    ##  apply(M, 1, inv) 13.832469 14.87703 20.779234 16.344920 21.213323 63.03932
+    ##              expr       min        lq      mean    median        uq      max
+    ##            inv(M)  1.392709  1.720338  4.196508  2.199216  4.285514 57.74774
+    ##  apply(M, 1, inv) 13.683651 15.643394 22.324398 18.574272 23.633559 57.47332
     ##  neval cld
     ##    100  a 
     ##    100   b
@@ -505,31 +528,6 @@ On average, using the function directly on the matrix is \~7X faster
 than using `apply`
 
 </details>
-
-Is it faster to apply a function to a matrix directly `foo(M)` or to use
-`apply` to do it `apply(M, c(1, 2), foo)`?
-
-``` r
-library(microbenchmark)
-
-inv <- function(x){1/x}
-
-M <- matrix(1:1000000, nrow = 1000)
-
-microbenchmark(inv(M), 
-               apply(M, 1, inv))
-```
-
-    ## Unit: milliseconds
-    ##              expr       min        lq      mean    median        uq       max
-    ##            inv(M)  1.157439  1.459363  3.172985  1.709917  3.642806  23.85245
-    ##  apply(M, 1, inv) 12.063547 13.905705 19.760775 16.025689 18.763351 165.00343
-    ##  neval cld
-    ##    100  a 
-    ##    100   b
-
-On average, using the function directly on the matrix is \~7X faster
-than using `apply`
 
 Define functions for the three weighting methods
 
@@ -545,13 +543,13 @@ curve(inv_sqr, add = TRUE, col = "red")
 curve(lin, add = TRUE, col = "blue")
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-17-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-16-1.png" width="672" />
 
 Create Euclidean distance matrix to store Euclidean distances between
 each test point and all the train points. Each row of the distance
 matrix is a test point, each column is a train point, and the matrix
-element (i, j) is the distance between test point i and train point j.
-This matrix will be used to figure out each test point’s nearest
+element `(i, j)` is the distance between test point `i` and train point
+`j`. This matrix will be used to figure out each test point’s nearest
 neighbors.
 
 ``` r
@@ -574,16 +572,12 @@ proc.time() - ptm
 ```
 
     ##    user  system elapsed 
-    ## 186.351  27.847 214.419
-
-``` r
-# ~3.5 minutes
-```
+    ## 187.892  29.664 217.932
 
 kNN with inverse weights
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
 usps_test_pred_Euclidean_inv <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
@@ -600,25 +594,18 @@ for(i in 1:nrow(usps_test)){
       z[which(z_labels == trSetLabDist[m, 1])] <- 
         z[which(z_labels == trSetLabDist[m, 1])] + inv(trSetLabDist[m, 2], k = max_dist)
     }
-    usps_test_pred_Euclidean_inv[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Euclidean_inv[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 } 
 
-head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv)))
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv)))
 ```
-
-    ##      usps_test_labels   
-    ## [1,]               10 10
-    ## [2,]                7  7
-    ## [3,]                4  4
-    ## [4,]                7  7
-    ## [5,]                7  7
-    ## [6,]                1  1
 
 kNN with squared inverse weight
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
 usps_test_pred_Euclidean_inv_sqr <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
@@ -635,25 +622,18 @@ for(i in 1:nrow(usps_test)){
       z[which(z_labels == trSetLabDist[m, 1])] <- 
         z[which(z_labels == trSetLabDist[m, 1])] + inv_sqr(trSetLabDist[m, 2], k = max_dist)
     }
-    usps_test_pred_Euclidean_inv_sqr[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Euclidean_inv_sqr[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 } 
 
-head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv_sqr)))
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_inv_sqr)))
 ```
-
-    ##      usps_test_labels   
-    ## [1,]               10 10
-    ## [2,]                7  7
-    ## [3,]                4  4
-    ## [4,]                7  7
-    ## [5,]                7  7
-    ## [6,]                1  1
 
 kNN with linear weight
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
 usps_test_pred_Euclidean_lin <- matrix(0, nrow = nrow(usps_test), ncol = 10)
 # for each test point i
@@ -670,20 +650,13 @@ for(i in 1:nrow(usps_test)){
       z[which(z_labels == trSetLabDist[m, 1])] <- 
         z[which(z_labels == trSetLabDist[m, 1])] + lin(trSetLabDist[m, 2], k = max_dist)
     }
-    usps_test_pred_Euclidean_lin[i, k] <- sample(z_labels[which(z == max(z))], size = 1) # assign to class with highest z; in case of tie, pick randomly
+    # assign to class with highest z; in case of tie, pick randomly
+    usps_test_pred_Euclidean_lin[i, k] <- sample(z_labels[which(z == max(z))], size = 1) 
   }
 } 
 
-head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_lin)))
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_lin)))
 ```
-
-    ##      usps_test_labels   
-    ## [1,]               10 10
-    ## [2,]                7  7
-    ## [3,]                4  4
-    ## [4,]                7  7
-    ## [5,]                7  7
-    ## [6,]                1  1
 
 Calculate error rates for the three weighting schemes
 
@@ -692,17 +665,20 @@ library(caret) # for function confusionMatrix
 
 errorRate_Euclidean_inv <- numeric(10)
 for(i in 1:10){
-  errorRate_Euclidean_inv[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_inv[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv[, i]), 
+                                                    usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Euclidean_inv_sqr <- numeric(10)
 for(i in 1:10){
-  errorRate_Euclidean_inv_sqr[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv_sqr[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_inv_sqr[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_inv_sqr[, i]), 
+                                                        usps_test_labels)$overall["Accuracy"]
 }
 
 errorRate_Euclidean_lin <- numeric(10)
 for(i in 1:10){
-  errorRate_Euclidean_lin[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_lin[, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_lin[i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_lin[, i]), 
+                                                    usps_test_labels)$overall["Accuracy"]
 }
 ```
 
@@ -719,7 +695,7 @@ legend("top", legend = c("inverse", "squared inverse", "linear"),
        col = c("red", "blue", "black"), lty = 1)
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-23-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-22-1.png" width="672" />
 
 ``` r
 cbind(errorRate_Euclidean_inv, errorRate_Euclidean_inv_sqr, errorRate_Euclidean_lin)
@@ -750,15 +726,15 @@ cbind(errorRate_Euclidean_inv, errorRate_Euclidean_inv_sqr, errorRate_Euclidean_
 
 ------------------------------------------------------------------------
 
-## nearest local centroid USPS digits
+## *k*NN nearest local centroid: USPS digits
 
 PROBLEM STATEMENT: Apply the nearest local centroid classifier to the
 USPS digits data with different values of *k*. Plot the test error curve
 and interpret your results. What is the confusion matrix corresponding
 to the optimal *k*?
 
-Strategy - set initial centroid for all labels to max_dist - update
-centroids for labels within *k* neighbors - assign label as
+Strategy \* set initial centroid for all labels to max_dist \* update
+centroids for labels within *k* neighbors \* assign label as
 which.min(centroids)
 
 Load the data
@@ -769,17 +745,17 @@ gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb) max used  (Mb)
-    ## Ncells 2705478 144.5    4979047 266.0  4979047 266.0
-    ## Vcells 4618988  35.3   72859026 555.9 91073782 694.9
+    ## Ncells 2678277 143.1    4949425 264.4  4949425 264.4
+    ## Vcells 4566237  34.9   72859708 555.9 91074635 694.9
 
 ``` r
 library(tidyverse)
 usps_train <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
-  delim = " ", col_names = FALSE)
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
 
 # str(usps_train)
 
@@ -835,22 +811,21 @@ for(i in 1:nrow(usps_test)){
     distances_Euclidean[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
   }
 }
-proc.time() - ptm
+proc.time() - ptm # ~3.5 minutes
 ```
 
     ##    user  system elapsed 
-    ## 184.110  25.727 210.224
-
-``` r
-# ~3.5 minutes
-```
+    ## 185.555  26.943 213.079
 
 calculate local centroids and assign test point to nearest local
 centroid
 
 ``` r
-# create a matrix with k columns and nrow(usps_test) rows to store predictions for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
+
+system.time({
+  
 
 max_k <- 40
 usps_test_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
@@ -893,48 +868,38 @@ for(i in 1:nrow(usps_test)){
   }
 } 
 
-head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+
+
+}) # end system.time
 ```
 
-    ##      usps_test_labels   
-    ## [1,]               10 10
-    ## [2,]                7  7
-    ## [3,]                4  4
-    ## [4,]                7  7
-    ## [5,]                7  7
-    ## [6,]                1  1
+    ##     user   system  elapsed 
+    ## 1238.962  440.193 1683.221
 
-Calculate and plot error rates for the max_k k values
+Calculate and plot error rates for the `max_k` k values
 
 ``` r
 library(caret) # for function confusionMatrix
 
 errorRate_Euclidean_cent <- numeric(max_k)
 for(i in 1:max_k){
-  errorRate_Euclidean_cent [i] <- 1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent [, i]), usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_cent [i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent [, i]), 
+                        usps_test_labels)$overall["Accuracy"]
 }
 
-errorRate_Euclidean_cent
-```
+# errorRate_Euclidean_cent
 
-    ##  [1] 0.05630294 0.05630294 0.05331340 0.04982561 0.04683607 0.04683607
-    ##  [7] 0.04484305 0.04633782 0.04484305 0.04285002 0.04534131 0.04534131
-    ## [13] 0.04534131 0.04683607 0.04633782 0.04583956 0.04633782 0.04534131
-    ## [19] 0.04484305 0.04434479 0.04534131 0.04484305 0.04434479 0.04583956
-    ## [25] 0.04783259 0.04633782 0.04733433 0.04534131 0.04583956 0.04683607
-    ## [31] 0.04534131 0.04683607 0.04633782 0.04583956 0.04583956 0.04583956
-    ## [37] 0.04733433 0.04783259 0.04833084 0.04882910
-
-``` r
 plot(1:max_k, errorRate_Euclidean_cent,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
      ylim = c(0.04, 0.057))
 ```
 
-<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-27-1.png" width="672" />
+<img src="01-kNN-and-Crossvalidation_files/figure-gfm/unnamed-chunk-26-1.png" width="672" />
 
-Session info
+Session Info
 
 ``` r
 R.Version()
