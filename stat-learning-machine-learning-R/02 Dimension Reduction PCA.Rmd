@@ -1,0 +1,622 @@
+---
+title: 'Dimension Reduction: Principal Component Analysis (PCA)'
+output: rmarkdown::github_document
+date: '2022-10-24'
+---
+
+```{r setup, include=FALSE}
+
+rm(list = ls())
+gc()
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.retina = 2,
+  message = FALSE,
+  warning = FALSE
+)
+
+```
+
+# PCA for Visualization
+
+## Load MNIST Dataset
+
+```{r}
+
+library(keras)
+
+mnist <- dataset_mnist()
+train_x <- mnist$train$x
+train_y <- mnist$train$y
+test_x <- mnist$test$x
+test_y <- mnist$test$y
+
+str(train_x)
+str(train_y)
+
+str(test_x)
+str(test_y)
+
+```
+
+## Look at the data
+
+```{r}
+
+table(train_y)
+table(test_y)
+
+```
+
+Convert train_x and test_x from array to matrix
+
+```{r array to matrix}
+
+str(train_x)
+str(test_x)
+
+train_x <- matrix(train_x, ncol = 784)
+test_x <- matrix(test_x, ncol = 784)
+
+str(train_x)
+str(test_x)
+
+```
+
+## PCA visualization of 0, 1, and 0 and 1 combined
+
+```{r PCA visualization of 0, 1, and 0 and 1 combined}
+
+train_0 <- train_x[train_y == 0, ]
+train_1 <- train_x[train_y == 1, ]
+train_0_1 <- rbind(train_0, train_1)
+train_0_1_labels <- c(rep(0, times = nrow(train_0)), rep(1, times = nrow(train_1)))
+
+# PCA, no scale, no center
+
+train_0_pca <- prcomp(train_0, center = FALSE, scale = FALSE)
+
+plot(train_0_pca$x[, 1], train_0_pca$x[, 2],
+      col = 1,
+      main = "MNIST Dataset - 0 Only",
+      xlab = "First Principal Component", ylab = "Second Principal Component")
+
+
+```
+
+```{r PCA visualization of 1}
+
+# PCA, no scale, no center
+
+train_1_pca <- prcomp(train_1, center = FALSE, scale = FALSE)
+
+plot(train_1_pca$x[, 1], train_1_pca$x[, 2],
+        col = 2,
+        main = "MNIST Dataset - 1 Only",
+        xlab = "First Principal Component", ylab = "Second Principal Component")
+
+```
+
+```{r PCA visualization of 0 and 1}
+
+train_0_1_pca <- prcomp(train_0_1, center = FALSE, scale = FALSE)
+
+plot(train_0_1_pca$x[, 1], train_0_1_pca$x[, 2],
+        col = factor(train_0_1_labels),
+        main = "MNIST Dataset - 0 & 1",
+        xlab = "First Principal Component", ylab = "Second Principal Component")
+
+legend("topright", legend = levels(factor(train_0_1_labels)), fill = c(1:2))
+```
+
+# PCA as Pre-Processing for kNN Machine Learning: USPS digits
+
+We compare 50% variance PCA, 95% variance PCA, and no PCA, as pre-processing for kNN classification of the USPS digits datasets
+
+## Load the data
+
+```{r load USPS data 1}
+
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
+
+# convert to matrix
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- factor(usps_train[, 1])
+usps_test_labels <- factor(usps_test[, 1])
+
+# drop label column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+```
+
+How many PCs required to explain 50% of variance? 95% of variance?
+
+```{r PCA on train data}
+
+usps_train_pca <- prcomp(usps_train, center = TRUE, scale = TRUE)
+str(usps_train_pca)
+summary(usps_train_pca)
+
+```
+
+from `summary`, at least 9 and 107 PCs are required to explain 50% and 95% of variance respectively
+
+```{r}
+
+# project test set to PCA spaces
+
+# PCA with at least 50% variance explained
+usps_test_pca50 <- usps_test %*% usps_train_pca$rotation[ , c(1:9)]
+
+# PCA with at least 95% variance explained
+usps_test_pca95 <- usps_test %*% usps_train_pca$rotation[ , c(1:107)]
+
+str(usps_test_pca50)
+str(usps_test_pca95)
+
+```
+
+test error for no PCA, 50%-variance PCA, and 95%-variance PCA
+
+```{r}
+
+library(class) # for knn function
+
+k_max <- 10 # max k for kNN
+
+# initialize lists to store predicted labels for 3 dataset and different values of k
+usps_test_nopca_labels <- usps_test_pca50_labels <- usps_test_pca95_labels <- vector("list", length = k_max)
+
+for (k in 1:k_max){
+  usps_test_nopca_labels[[k]] <- knn(usps_train, usps_test, usps_train_labels, k)
+  usps_test_pca50_labels[[k]] <- knn(usps_train_pca$x[, 1:9], usps_test_pca50, usps_train_labels, k)
+  usps_test_pca95_labels[[k]] <- knn(usps_train_pca$x[, 1:107], usps_test_pca95, usps_train_labels, k)
+
+}
+
+```
+
+plot error rates
+
+```{r}
+
+library(caret) # for function confusionMatrix
+
+# find error rates
+errorRate_nopca <- errorRate_pca50 <- errorRate_pca95 <- numeric(10)
+
+for(k in 1:10){
+  errorRate_nopca[k] <- 1 - confusionMatrix(factor(usps_test_nopca_labels[[k]]), usps_test_labels)$overall["Accuracy"]
+  errorRate_pca50[k] <- 1 - confusionMatrix(factor(usps_test_pca50_labels[[k]]), usps_test_labels)$overall["Accuracy"]
+  errorRate_pca95[k] <- 1 - confusionMatrix(factor(usps_test_pca95_labels[[k]]), usps_test_labels)$overall["Accuracy"]
+}
+
+cbind(errorRate_nopca, errorRate_pca95, errorRate_pca50)
+
+```
+
+```{r}
+
+# plot error rates vs k
+plot(1:10, errorRate_nopca,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0, 0.4))
+points(1:10, errorRate_pca95, type = "o", col = "black")
+points(1:10, errorRate_pca50, type = "o", col = "blue")
+legend("topright", legend = c("no PCA", "PCA 95%", "PCA 50%"),
+       col = c("red", "black", "blue"), lty = 1)
+
+```
+* performance (accuracy) no PCA > PCA 95% > PCA 50% for all k
+* best performance (accuracy) at k = 3 for no PCA, k = 1 for PCA 95%, and k = 10 for PCA 50%
+
+How does using PCA influence run time?
+
+```{r}
+
+library(microbenchmark)
+library(class)
+
+microbenchmark(knn(usps_train, usps_test, usps_train_labels, 10), 
+               knn(usps_train_pca$x[, 1:107], usps_test_pca95, usps_train_labels, 10), 
+               knn(usps_train_pca$x[, 1:9], usps_test_pca50, usps_train_labels, 10))
+
+```
+
+# PCA as Pre-Processing for Nearest-Local-Centroid Machine Learning: USPS digits
+
+We compare 50% variance PCA, 95% variance PCA, and no PCA, as pre-processing for nearest local centroid classification of the USPS digits datasets
+
+## Load the data
+
+```{r load USPS data}
+
+rm(list = ls())
+gc()
+
+library(tidyverse)
+usps_train <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.train.gz", 
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
+usps_test <- read_delim(
+  "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
+  delim = " ", col_names = FALSE, show_col_types = FALSE)
+
+# convert to matrix
+usps_train <- as.matrix(usps_train)
+usps_test <- as.matrix(usps_test)
+
+# first column contains labels
+usps_train_labels <- factor(usps_train[, 1])
+usps_test_labels <- factor(usps_test[, 1])
+
+# drop label column of usps_train and usps_test
+usps_train <- usps_train[, -1]
+usps_test <- usps_test[, -1]
+
+# drop last column (all NA) of usps_train
+usps_train <- usps_train[, -257]
+
+# PCA
+usps_train_pca <- prcomp(usps_train, center = TRUE, scale = TRUE)
+
+# project test set to PCA spaces
+# PCA with at least 50% variance explained
+usps_test_pca50 <- usps_test %*% usps_train_pca$rotation[ , c(1:9)]
+
+# PCA with at least 95% variance explained
+usps_test_pca95 <- usps_test %*% usps_train_pca$rotation[ , c(1:107)]
+
+str(usps_test_pca95)
+
+```
+
+Create Euclidean distance matrix to store Euclidean distances between each test point and all the train points. Each row of the distance matrix is a test point, each column is a train point, and the matrix element (i, j) is the distance between test point i and train point j. This matrix will be used to figure out each test point's nearest neighbors.
+
+```{r distances_Euclidean_nopca}
+
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean_nopca <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+ptm <- proc.time()
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean_nopca[i, j] <- euclidean_dist(usps_test[i, ], usps_train[j, ])
+  }
+}
+proc.time() - ptm # ~3.5 minutes
+
+```
+
+calculate local centroids and assign test point to nearest local centroid
+
+```{r}
+
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+
+system.time({
+  
+
+max_k <- 40
+usps_test_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # i <- 4
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean_nopca[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean_nopca[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = max_k (max_k predictions per test point)
+  z <- rep(max_dist, 10) # vector to store local centroids of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:max_k){ # predictions for k = 1 to k = max_k
+    # loop through the k neighbors calculating centroids & dist to test point i
+
+    neighbors <- data.frame(usps_train_labels, 
+                              usps_train)[as.integer(rownames(trSetLabDist[1:k, ])), ]
+    # neighbors[, 1:12]
+    
+    for (lbl in unique(neighbors[, 'usps_train_labels'])){
+      #print(lbl)
+      #print(neighbors[neighbors$usps_train_labels == lbl, 1:12])
+      #neighbors[neighbors$usps_train_labels == lbl, -1]
+      
+      # group neighbors by label
+      lbl_neighbors <- neighbors[neighbors$usps_train_labels == lbl, -1]
+      #print(lbl_neighbors[, 1:5])
+      
+      # calculate local centroid for each label
+      lbl_centroid <- colSums(lbl_neighbors)/nrow(lbl_neighbors)
+      #print(lbl_centroid[1:5])
+      
+      # calculate distance from i to each centroid
+      z[which(z_labels == lbl)] <- euclidean_dist(usps_test[i, ], lbl_centroid)
+      #print(z)
+    }
+
+    usps_test_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1) # assign to class with smallest z i.e. nearest local centroid; in case of tie, pick randomly
+  }
+} 
+
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+
+
+}) # end system.time
+
+```
+
+Calculate and plot error rates for the `max_k` k values
+
+```{r}
+
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_cent <- numeric(max_k)
+for(i in 1:max_k){
+  errorRate_Euclidean_cent [i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent [, i]), 
+                        usps_test_labels)$overall["Accuracy"]
+}
+
+# errorRate_Euclidean_cent
+
+plot(1:max_k, errorRate_Euclidean_cent,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.04, 0.057))
+
+```
+
+
+Repeat for pca95 and pca50
+
+```{r pca95}
+
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean_pca95 <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean_pca95[i, j] <- euclidean_dist(usps_test_pca95[i, ], 
+                                                      usps_train_pca$x[j, 1:107])
+  }
+}
+
+```
+
+NEXT: centroid calculation as in nopca above
+
+```{r pca95 centroid calculation}
+
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+
+system.time({
+  
+
+max_k <- 40
+usps_test_pca95_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # i <- 4
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean_pca95[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean_pca95[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = max_k (max_k predictions per test point)
+  z <- rep(max_dist, 10) # vector to store local centroids of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:max_k){ # predictions for k = 1 to k = max_k
+    # loop through the k neighbors calculating centroids & dist to test point i
+
+    neighbors <- data.frame(usps_train_labels, 
+                              usps_train_pca$x[, 1:107])[as.integer(rownames(trSetLabDist[1:k, ])), ]
+    # neighbors[, 1:12]
+    
+    for (lbl in unique(neighbors[, 'usps_train_labels'])){
+      #print(lbl)
+      #print(neighbors[neighbors$usps_train_labels == lbl, 1:12])
+      #neighbors[neighbors$usps_train_labels == lbl, -1]
+      
+      # group neighbors by label
+      lbl_neighbors <- neighbors[neighbors$usps_train_labels == lbl, -1]
+      #print(lbl_neighbors[, 1:5])
+      
+      # calculate local centroid for each label
+      lbl_centroid <- colSums(lbl_neighbors)/nrow(lbl_neighbors)
+      #print(lbl_centroid[1:5])
+      
+      # calculate distance from i to each centroid
+      z[which(z_labels == lbl)] <- euclidean_dist(usps_test_pca95[i, ], lbl_centroid)
+      #print(z)
+    }
+
+    usps_test_pca95_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1) # assign to class with smallest z i.e. nearest local centroid; in case of tie, pick randomly
+  }
+} 
+
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+
+
+}) # end system.time
+
+```
+
+plot nopca vs pca95 vs pca50
+
+```{r}
+
+# Calculate and plot error rates for the `max_k` k values
+
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_cent_pca95 <- numeric(max_k)
+for(i in 1:max_k){
+  errorRate_Euclidean_cent_pca95 [i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pca95_pred_Euclidean_cent[, i]), 
+                        usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_cent_pca95
+
+plot(1:max_k, errorRate_Euclidean_cent_pca95,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.04, 0.15))
+
+```
+
+repeat for pca50
+
+```{r pca50}
+
+euclidean_dist <- function(x1, x2){
+  # calculates Euclidean distance between vectors x1 and x2
+  return(sqrt(sum((x1 - x2) ^ 2)))
+}
+
+# initialize matrix
+distances_Euclidean_pca50 <- matrix(0, nrow = nrow(usps_test), ncol = nrow(usps_train))
+
+# populate matrix
+for(i in 1:nrow(usps_test)){
+  for(j in 1:nrow(usps_train)){
+    distances_Euclidean_pca50[i, j] <- euclidean_dist(usps_test_pca50[i, ], 
+                                                      usps_train_pca$x[j, 1:9])
+  }
+}
+
+```
+
+pca50 centroids
+
+```{r}
+
+
+# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
+# element [i, k] is the prediction of test point i using k neighbors
+
+system.time({
+  
+
+max_k <- 40
+usps_test_pca50_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
+# for each test point i
+for(i in 1:nrow(usps_test)){
+  # i <- 4
+  # cbind train labels and dist[i, ] and sort by distance
+  trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean_pca50[i, ])
+  trSetLabDist <- trSetLabDist[order(distances_Euclidean_pca50[i, ]), ] # sort by distance
+  max_dist <- max(trSetLabDist[, 2])
+  # make prediction for test point i for k = 1 to k = max_k (max_k predictions per test point)
+  z <- rep(max_dist, 10) # vector to store local centroids of ten classes
+  z_labels <- levels(usps_test_labels)
+  for(k in 1:max_k){ # predictions for k = 1 to k = max_k
+    # loop through the k neighbors calculating centroids & dist to test point i
+
+    neighbors <- data.frame(usps_train_labels, 
+                              usps_train_pca$x[, 1:9])[as.integer(rownames(trSetLabDist[1:k, ])), ]
+    # neighbors[, 1:12]
+    
+    for (lbl in unique(neighbors[, 'usps_train_labels'])){
+      #print(lbl)
+      #print(neighbors[neighbors$usps_train_labels == lbl, 1:12])
+      #neighbors[neighbors$usps_train_labels == lbl, -1]
+      
+      # group neighbors by label
+      lbl_neighbors <- neighbors[neighbors$usps_train_labels == lbl, -1]
+      #print(lbl_neighbors[, 1:5])
+      
+      # calculate local centroid for each label
+      lbl_centroid <- colSums(lbl_neighbors)/nrow(lbl_neighbors)
+      #print(lbl_centroid[1:5])
+      
+      # calculate distance from i to each centroid
+      z[which(z_labels == lbl)] <- euclidean_dist(usps_test_pca50[i, ], lbl_centroid)
+      #print(z)
+    }
+
+    usps_test_pca50_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1) # assign to class with smallest z i.e. nearest local centroid; in case of tie, pick randomly
+  }
+} 
+
+# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
+
+
+}) # end system.time
+
+```
+
+plot pca50
+
+```{r}
+
+# Calculate and plot error rates for the `max_k` k values
+
+library(caret) # for function confusionMatrix
+
+errorRate_Euclidean_cent_pca50 <- numeric(max_k)
+for(i in 1:max_k){
+  errorRate_Euclidean_cent_pca50 [i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pca50_pred_Euclidean_cent[, i]), 
+                        usps_test_labels)$overall["Accuracy"]
+}
+
+errorRate_Euclidean_cent_pca50
+
+plot(1:max_k, errorRate_Euclidean_cent_pca50,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0.33, 0.37))
+
+```
+
+plot all 3 together
+
+```{r}
+
+# plot error rates vs k
+plot(1:max_k, errorRate_Euclidean_cent,
+     type = "o", col = "red",
+     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
+     ylim = c(0, 0.4))
+points(1:max_k, errorRate_Euclidean_cent_pca95, type = "o", col = "black")
+points(1:max_k, errorRate_Euclidean_cent_pca50, type = "o", col = "blue")
+legend("center", legend = c("no PCA", "PCA 95%", "PCA 50%"),
+       col = c("red", "black", "blue"), lty = 1)
+
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
