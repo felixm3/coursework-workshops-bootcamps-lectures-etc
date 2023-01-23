@@ -406,15 +406,15 @@ cbind(errorRate_nopca, errorRate_pca95, errorRate_pca50)
 
     ##       errorRate_nopca errorRate_pca95 errorRate_pca50
     ##  [1,]      0.05630294       0.1425012       0.3647235
-    ##  [2,]      0.06078724       0.1569507       0.3627304
-    ##  [3,]      0.05430992       0.1619332       0.3393124
-    ##  [4,]      0.05879422       0.1644245       0.3358246
-    ##  [5,]      0.05480817       0.1639263       0.3233682
-    ##  [6,]      0.05779771       0.1689088       0.3253612
-    ##  [7,]      0.05879422       0.1733931       0.3228700
-    ##  [8,]      0.06178376       0.1783757       0.3228700
-    ##  [9,]      0.06278027       0.1798705       0.3228700
-    ## [10,]      0.06278027       0.1833582       0.3203787
+    ##  [2,]      0.06327853       0.1599402       0.3707025
+    ##  [3,]      0.05480817       0.1614350       0.3388142
+    ##  [4,]      0.05630294       0.1654210       0.3353264
+    ##  [5,]      0.05430992       0.1669158       0.3233682
+    ##  [6,]      0.05779771       0.1714001       0.3223717
+    ##  [7,]      0.06028899       0.1733931       0.3243647
+    ##  [8,]      0.05929248       0.1773792       0.3213752
+    ##  [9,]      0.06327853       0.1798705       0.3238665
+    ## [10,]      0.06278027       0.1823617       0.3193822
 
 ``` r
 # plot error rates vs k
@@ -449,10 +449,10 @@ microbenchmark(knn(usps_train, usps_test, usps_train_labels, 10),
     ##                            knn(usps_train, usps_test, usps_train_labels, 10)
     ##  knn(usps_train_pca$x[, 1:107], usps_test_pca95, usps_train_labels,      10)
     ##    knn(usps_train_pca$x[, 1:9], usps_test_pca50, usps_train_labels,      10)
-    ##        min        lq      mean    median        uq       max neval cld
-    ##  5150.0244 5305.1943 6219.7525 6114.7393 6747.2504 13276.030   100   c
-    ##  1318.2608 1356.5634 1518.4287 1431.6080 1521.1242  5827.228   100  b 
-    ##   103.3932  110.2016  114.8994  113.2257  118.0443   135.182   100 a
+    ##       min        lq      mean    median        uq       max neval cld
+    ##  6144.172 7466.5125 7882.0598 7863.2219 8301.5084 9242.8213   100   c
+    ##  1458.156 1643.0997 1848.7398 1738.0517 1896.6294 4613.3688   100  b 
+    ##   107.694  119.3231  126.6915  125.4803  132.9462  163.4824   100 a
 
 # PCA as Pre-Processing for Nearest-Local-Centroid Machine Learning: USPS digits
 
@@ -468,8 +468,8 @@ gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb)  max used   (Mb)
-    ## Ncells 2678454 143.1    5039558 269.2   3528812  188.5
-    ## Vcells 4529479  34.6  116728904 890.6 145851218 1112.8
+    ## Ncells 2678365 143.1    5039330 269.2   3528772  188.5
+    ## Vcells 4529261  34.6  116730145 890.6 145912681 1113.3
 
 ``` r
 library(tidyverse)
@@ -539,8 +539,8 @@ for(i in 1:nrow(usps_test)){
 proc.time() - ptm # ~3.5 minutes
 ```
 
-    ##      user    system   elapsed 
-    ##   425.424    34.644 16665.452
+    ##    user  system elapsed 
+    ## 183.040  18.391 201.070
 
 calculate local centroids and assign test point to nearest local
 centroid
@@ -599,8 +599,8 @@ for(i in 1:nrow(usps_test)){
 }) # end system.time
 ```
 
-    ##      user    system   elapsed 
-    ##  1317.034   501.233 17991.214
+    ##     user   system  elapsed 
+    ## 1210.773  448.191 1665.622
 
 Calculate and plot error rates for the `max_k` k values
 
@@ -701,7 +701,7 @@ for(i in 1:nrow(usps_test)){
 ```
 
     ##     user   system  elapsed 
-    ##  810.109  319.718 1132.302
+    ##  795.029  294.031 1092.600
 
 plot nopca vs pca95 vs pca50
 
@@ -813,7 +813,7 @@ for(i in 1:nrow(usps_test)){
 ```
 
     ##    user  system elapsed 
-    ## 114.876  27.512 143.750
+    ## 113.722  25.713 140.395
 
 plot pca50
 
