@@ -14,29 +14,7 @@ train_x <- mnist$train$x
 train_y <- mnist$train$y
 test_x <- mnist$test$x
 test_y <- mnist$test$y
-
-str(train_x)
 ```
-
-    ##  int [1:60000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
-
-``` r
-str(train_y)
-```
-
-    ##  int [1:60000(1d)] 5 0 4 1 9 2 1 3 1 4 ...
-
-``` r
-str(test_x)
-```
-
-    ##  int [1:10000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
-
-``` r
-str(test_y)
-```
-
-    ##  int [1:10000(1d)] 7 2 1 0 4 1 4 9 5 9 ...
 
 ## Look at the data
 
@@ -56,46 +34,21 @@ table(test_y)
     ##    0    1    2    3    4    5    6    7    8    9 
     ##  980 1135 1032 1010  982  892  958 1028  974 1009
 
-Convert train_x and test_x from array to matrix
-
-``` r
-str(train_x)
-```
-
-    ##  int [1:60000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
-
-``` r
-str(test_x)
-```
-
-    ##  int [1:10000, 1:28, 1:28] 0 0 0 0 0 0 0 0 0 0 ...
-
-``` r
-train_x <- matrix(train_x, ncol = 784)
-test_x <- matrix(test_x, ncol = 784)
-
-str(train_x)
-```
-
-    ##  int [1:60000, 1:784] 0 0 0 0 0 0 0 0 0 0 ...
-
-``` r
-str(test_x)
-```
-
-    ##  int [1:10000, 1:784] 0 0 0 0 0 0 0 0 0 0 ...
-
 ## PCA visualization of 0, 1, and 0 and 1 combined
 
 ``` r
+# convert `train_x` and `test_x` from array to matrix
+train_x <- matrix(train_x, ncol = 784)
+test_x <- matrix(test_x, ncol = 784)
+
+# select 0 and 1 from train_x
 train_0 <- train_x[train_y == 0, ]
 train_1 <- train_x[train_y == 1, ]
 train_0_1 <- rbind(train_0, train_1)
 train_0_1_labels <- c(rep(0, times = nrow(train_0)), rep(1, times = nrow(train_1)))
 
-# PCA, no scale, no center
-
-train_0_pca <- prcomp(train_0, center = FALSE, scale = FALSE)
+# PCA, center, no scale
+train_0_pca <- prcomp(train_0)
 
 plot(train_0_pca$x[, 1], train_0_pca$x[, 2],
       col = 1,
@@ -106,9 +59,8 @@ plot(train_0_pca$x[, 1], train_0_pca$x[, 2],
 <img src="02-Dimension-Reduction-PCA_files/figure-gfm/PCA visualization of 0, 1, and 0 and 1 combined-1.png" width="672" />
 
 ``` r
-# PCA, no scale, no center
-
-train_1_pca <- prcomp(train_1, center = FALSE, scale = FALSE)
+# PCA, center, no scale
+train_1_pca <- prcomp(train_1)
 
 plot(train_1_pca$x[, 1], train_1_pca$x[, 2],
         col = 2,
@@ -119,7 +71,7 @@ plot(train_1_pca$x[, 1], train_1_pca$x[, 2],
 <img src="02-Dimension-Reduction-PCA_files/figure-gfm/PCA visualization of 1-1.png" width="672" />
 
 ``` r
-train_0_1_pca <- prcomp(train_0_1, center = FALSE, scale = FALSE)
+train_0_1_pca <- prcomp(train_0_1)
 
 plot(train_0_1_pca$x[, 1], train_0_1_pca$x[, 2],
         col = factor(train_0_1_labels),
@@ -131,7 +83,7 @@ legend("topright", legend = levels(factor(train_0_1_labels)), fill = c(1:2))
 
 <img src="02-Dimension-Reduction-PCA_files/figure-gfm/PCA visualization of 0 and 1-1.png" width="672" />
 
-# PCA as Pre-Processing for kNN Machine Learning: USPS digits
+# PCA as Pre-Processing for kNN Classification: USPS digits
 
 We compare 50% variance PCA, 95% variance PCA, and no PCA, as
 pre-processing for kNN classification of the USPS digits datasets
@@ -167,26 +119,6 @@ How many PCs required to explain 50% of variance? 95% of variance?
 
 ``` r
 usps_train_pca <- prcomp(usps_train, center = TRUE, scale = TRUE)
-str(usps_train_pca)
-```
-
-    ## List of 5
-    ##  $ sdev    : num [1:256] 6.2 4.36 4.18 3.65 3.32 ...
-    ##  $ rotation: num [1:256, 1:256] 0.00166 0.00221 0.00368 0.00777 0.01393 ...
-    ##   ..- attr(*, "dimnames")=List of 2
-    ##   .. ..$ : chr [1:256] "X2" "X3" "X4" "X5" ...
-    ##   .. ..$ : chr [1:256] "PC1" "PC2" "PC3" "PC4" ...
-    ##  $ center  : Named num [1:256] -0.996 -0.981 -0.951 -0.888 -0.773 ...
-    ##   ..- attr(*, "names")= chr [1:256] "X2" "X3" "X4" "X5" ...
-    ##  $ scale   : Named num [1:256] 0.0517 0.1512 0.2443 0.3605 0.5027 ...
-    ##   ..- attr(*, "names")= chr [1:256] "X2" "X3" "X4" "X5" ...
-    ##  $ x       : num [1:7291, 1:256] 4.471 10.537 -0.509 -3.56 2.975 ...
-    ##   ..- attr(*, "dimnames")=List of 2
-    ##   .. ..$ : NULL
-    ##   .. ..$ : chr [1:256] "PC1" "PC2" "PC3" "PC4" ...
-    ##  - attr(*, "class")= chr "prcomp"
-
-``` r
 summary(usps_train_pca)
 ```
 
@@ -351,23 +283,7 @@ usps_test_pca50 <- usps_test %*% usps_train_pca$rotation[ , c(1:9)]
 
 # PCA with at least 95% variance explained
 usps_test_pca95 <- usps_test %*% usps_train_pca$rotation[ , c(1:107)]
-
-str(usps_test_pca50)
 ```
-
-    ##  num [1:2007, 1:9] -6.703 -1.896 -3.591 -1.924 -0.175 ...
-    ##  - attr(*, "dimnames")=List of 2
-    ##   ..$ : NULL
-    ##   ..$ : chr [1:9] "PC1" "PC2" "PC3" "PC4" ...
-
-``` r
-str(usps_test_pca95)
-```
-
-    ##  num [1:2007, 1:107] -6.703 -1.896 -3.591 -1.924 -0.175 ...
-    ##  - attr(*, "dimnames")=List of 2
-    ##   ..$ : NULL
-    ##   ..$ : chr [1:107] "PC1" "PC2" "PC3" "PC4" ...
 
 test error for no PCA, 50%-variance PCA, and 95%-variance PCA
 
@@ -376,14 +292,15 @@ library(class) # for knn function
 
 k_max <- 10 # max k for kNN
 
-# initialize lists to store predicted labels for 3 dataset and different values of k
-usps_test_nopca_labels <- usps_test_pca50_labels <- usps_test_pca95_labels <- vector("list", length = k_max)
+# initialize lists to store predicted labels for the 3 datasets and different values of k
+usps_test_nopca_labels <- 
+  usps_test_pca50_labels <- 
+    usps_test_pca95_labels <- vector("list", length = k_max)
 
 for (k in 1:k_max){
   usps_test_nopca_labels[[k]] <- knn(usps_train, usps_test, usps_train_labels, k)
   usps_test_pca50_labels[[k]] <- knn(usps_train_pca$x[, 1:9], usps_test_pca50, usps_train_labels, k)
   usps_test_pca95_labels[[k]] <- knn(usps_train_pca$x[, 1:107], usps_test_pca95, usps_train_labels, k)
-
 }
 ```
 
@@ -396,9 +313,12 @@ library(caret) # for function confusionMatrix
 errorRate_nopca <- errorRate_pca50 <- errorRate_pca95 <- numeric(10)
 
 for(k in 1:10){
-  errorRate_nopca[k] <- 1 - confusionMatrix(factor(usps_test_nopca_labels[[k]]), usps_test_labels)$overall["Accuracy"]
-  errorRate_pca50[k] <- 1 - confusionMatrix(factor(usps_test_pca50_labels[[k]]), usps_test_labels)$overall["Accuracy"]
-  errorRate_pca95[k] <- 1 - confusionMatrix(factor(usps_test_pca95_labels[[k]]), usps_test_labels)$overall["Accuracy"]
+  errorRate_nopca[k] <- 1 - confusionMatrix(factor(usps_test_nopca_labels[[k]]), 
+                                            usps_test_labels)$overall["Accuracy"]
+  errorRate_pca50[k] <- 1 - confusionMatrix(factor(usps_test_pca50_labels[[k]]), 
+                                            usps_test_labels)$overall["Accuracy"]
+  errorRate_pca95[k] <- 1 - confusionMatrix(factor(usps_test_pca95_labels[[k]]), 
+                                            usps_test_labels)$overall["Accuracy"]
 }
 
 cbind(errorRate_nopca, errorRate_pca95, errorRate_pca50)
@@ -406,22 +326,22 @@ cbind(errorRate_nopca, errorRate_pca95, errorRate_pca50)
 
     ##       errorRate_nopca errorRate_pca95 errorRate_pca50
     ##  [1,]      0.05630294       0.1425012       0.3647235
-    ##  [2,]      0.06327853       0.1599402       0.3707025
-    ##  [3,]      0.05480817       0.1614350       0.3388142
-    ##  [4,]      0.05630294       0.1654210       0.3353264
-    ##  [5,]      0.05430992       0.1669158       0.3233682
-    ##  [6,]      0.05779771       0.1714001       0.3223717
-    ##  [7,]      0.06028899       0.1733931       0.3243647
-    ##  [8,]      0.05929248       0.1773792       0.3213752
-    ##  [9,]      0.06327853       0.1798705       0.3238665
-    ## [10,]      0.06278027       0.1823617       0.3193822
+    ##  [2,]      0.06278027       0.1654210       0.3592427
+    ##  [3,]      0.05480817       0.1614350       0.3373194
+    ##  [4,]      0.05829596       0.1584454       0.3368211
+    ##  [5,]      0.05331340       0.1659193       0.3253612
+    ##  [6,]      0.05729945       0.1689088       0.3253612
+    ##  [7,]      0.05829596       0.1714001       0.3233682
+    ##  [8,]      0.05979073       0.1733931       0.3233682
+    ##  [9,]      0.06178376       0.1783757       0.3213752
+    ## [10,]      0.06228201       0.1798705       0.3213752
 
 ``` r
 # plot error rates vs k
 plot(1:10, errorRate_nopca,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0, 0.4))
+     ylim = c(0, 0.45))
 points(1:10, errorRate_pca95, type = "o", col = "black")
 points(1:10, errorRate_pca50, type = "o", col = "blue")
 legend("topright", legend = c("no PCA", "PCA 95%", "PCA 50%"),
@@ -429,9 +349,10 @@ legend("topright", legend = c("no PCA", "PCA 95%", "PCA 50%"),
 ```
 
 <img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-6-1.png" width="672" />
-\* performance (accuracy) no PCA \> PCA 95% \> PCA 50% for all k \* best
-performance (accuracy) at k = 3 for no PCA, k = 1 for PCA 95%, and k =
-10 for PCA 50%
+
+-   performance (accuracy) no-PCA \> PCA 95% \> PCA 50% for all k
+-   best performance (accuracy) at k = 3 for no-PCA, k = 1 for PCA 95%,
+    and k = 10 for PCA 50%
 
 How does using PCA influence run time?
 
@@ -449,12 +370,15 @@ microbenchmark(knn(usps_train, usps_test, usps_train_labels, 10),
     ##                            knn(usps_train, usps_test, usps_train_labels, 10)
     ##  knn(usps_train_pca$x[, 1:107], usps_test_pca95, usps_train_labels,      10)
     ##    knn(usps_train_pca$x[, 1:9], usps_test_pca50, usps_train_labels,      10)
-    ##       min        lq      mean    median        uq       max neval cld
-    ##  6144.172 7466.5125 7882.0598 7863.2219 8301.5084 9242.8213   100   c
-    ##  1458.156 1643.0997 1848.7398 1738.0517 1896.6294 4613.3688   100  b 
-    ##   107.694  119.3231  126.6915  125.4803  132.9462  163.4824   100 a
+    ##        min        lq      mean    median        uq      max neval cld
+    ##  5851.0045 6562.6443 7095.0411 7059.6897 7598.4641 8456.249   100   c
+    ##  1411.3692 1529.2076 1662.3652 1621.1210 1752.5538 2866.594   100  b 
+    ##   107.6786  113.9419  119.8495  117.3914  124.6039  147.524   100 a
 
-# PCA as Pre-Processing for Nearest-Local-Centroid Machine Learning: USPS digits
+-   PCA 95% \~4.5X faster than no-PCA
+-   PCA 50% \~13X faster than PCA 95%
+
+# PCA as Pre-Processing for Nearest-Local-Centroid Classification: USPS digits
 
 We compare 50% variance PCA, 95% variance PCA, and no PCA, as
 pre-processing for nearest local centroid classification of the USPS
@@ -462,14 +386,19 @@ digits datasets
 
 ## Load the data
 
+<details>
+<summary>
+Load the USPS data as above
+</summary>
+
 ``` r
 rm(list = ls())
 gc()
 ```
 
     ##           used  (Mb) gc trigger  (Mb)  max used   (Mb)
-    ## Ncells 2678365 143.1    5039330 269.2   3528772  188.5
-    ## Vcells 4529261  34.6  116730145 890.6 145912681 1113.3
+    ## Ncells 2678136 143.1    5039248 269.2   3528358  188.5
+    ## Vcells 4528027  34.6  119903988 914.8 149843149 1143.3
 
 ``` r
 library(tidyverse)
@@ -494,9 +423,15 @@ usps_test <- usps_test[, -1]
 
 # drop last column (all NA) of usps_train
 usps_train <- usps_train[, -257]
+```
 
+</details>
+
+Run PCA on USPS data
+
+``` r
 # PCA
-usps_train_pca <- prcomp(usps_train, center = TRUE, scale = TRUE)
+usps_train_pca <- prcomp(usps_train)
 
 # project test set to PCA spaces
 # PCA with at least 50% variance explained
@@ -504,14 +439,7 @@ usps_test_pca50 <- usps_test %*% usps_train_pca$rotation[ , c(1:9)]
 
 # PCA with at least 95% variance explained
 usps_test_pca95 <- usps_test %*% usps_train_pca$rotation[ , c(1:107)]
-
-str(usps_test_pca95)
 ```
-
-    ##  num [1:2007, 1:107] -6.703 -1.896 -3.591 -1.924 -0.175 ...
-    ##  - attr(*, "dimnames")=List of 2
-    ##   ..$ : NULL
-    ##   ..$ : chr [1:107] "PC1" "PC2" "PC3" "PC4" ...
 
 Create Euclidean distance matrix to store Euclidean distances between
 each test point and all the train points. Each row of the distance
@@ -540,23 +468,22 @@ proc.time() - ptm # ~3.5 minutes
 ```
 
     ##    user  system elapsed 
-    ## 183.040  18.391 201.070
+    ## 167.303  15.237 180.577
 
 calculate local centroids and assign test point to nearest local
 centroid
 
 ``` r
-# create matrix with k cols & nrow(usps_test) rows to store preds for every test point using 1 to k neighbors
+# create matrix with k cols & nrow(usps_test) rows to 
+# store preds for every test point using 1 to k neighbors
 # element [i, k] is the prediction of test point i using k neighbors
 
 system.time({
-  
 
 max_k <- 40
 usps_test_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
 # for each test point i
 for(i in 1:nrow(usps_test)){
-  # i <- 4
   # cbind train labels and dist[i, ] and sort by distance
   trSetLabDist <- data.frame(usps_train_labels, distances_Euclidean_nopca[i, ])
   trSetLabDist <- trSetLabDist[order(distances_Euclidean_nopca[i, ]), ] # sort by distance
@@ -569,62 +496,37 @@ for(i in 1:nrow(usps_test)){
 
     neighbors <- data.frame(usps_train_labels, 
                               usps_train)[as.integer(rownames(trSetLabDist[1:k, ])), ]
-    # neighbors[, 1:12]
     
     for (lbl in unique(neighbors[, 'usps_train_labels'])){
-      #print(lbl)
-      #print(neighbors[neighbors$usps_train_labels == lbl, 1:12])
-      #neighbors[neighbors$usps_train_labels == lbl, -1]
       
       # group neighbors by label
       lbl_neighbors <- neighbors[neighbors$usps_train_labels == lbl, -1]
-      #print(lbl_neighbors[, 1:5])
       
       # calculate local centroid for each label
       lbl_centroid <- colSums(lbl_neighbors)/nrow(lbl_neighbors)
-      #print(lbl_centroid[1:5])
       
       # calculate distance from i to each centroid
       z[which(z_labels == lbl)] <- euclidean_dist(usps_test[i, ], lbl_centroid)
-      #print(z)
     }
-
-    usps_test_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1) # assign to class with smallest z i.e. nearest local centroid; in case of tie, pick randomly
+    # assign to class with smallest z i.e. nearest local centroid
+    # in case of tie, pick randomly
+    usps_test_pred_Euclidean_cent[i, k] <- sample(z_labels[which(z == min(z))], size = 1)
   }
-} 
-
-# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
-
+}
 
 }) # end system.time
 ```
 
     ##     user   system  elapsed 
-    ## 1210.773  448.191 1665.622
+    ## 1199.131  447.306 1660.950
 
-Calculate and plot error rates for the `max_k` k values
+<details>
+<summary>
+Repeat the above centroid calculation and assignment for pca-95 and
+pca-50
+</summary>
 
-``` r
-library(caret) # for function confusionMatrix
-
-errorRate_Euclidean_cent <- numeric(max_k)
-for(i in 1:max_k){
-  errorRate_Euclidean_cent [i] <- 
-    1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent [, i]), 
-                        usps_test_labels)$overall["Accuracy"]
-}
-
-# errorRate_Euclidean_cent
-
-plot(1:max_k, errorRate_Euclidean_cent,
-     type = "o", col = "red",
-     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0.04, 0.057))
-```
-
-<img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-9-1.png" width="672" />
-
-Repeat for pca95 and pca50
+Repeat for pca95
 
 ``` r
 euclidean_dist <- function(x1, x2){
@@ -701,40 +603,7 @@ for(i in 1:nrow(usps_test)){
 ```
 
     ##     user   system  elapsed 
-    ##  795.029  294.031 1092.600
-
-plot nopca vs pca95 vs pca50
-
-``` r
-# Calculate and plot error rates for the `max_k` k values
-
-library(caret) # for function confusionMatrix
-
-errorRate_Euclidean_cent_pca95 <- numeric(max_k)
-for(i in 1:max_k){
-  errorRate_Euclidean_cent_pca95 [i] <- 
-    1 - confusionMatrix(as.factor(usps_test_pca95_pred_Euclidean_cent[, i]), 
-                        usps_test_labels)$overall["Accuracy"]
-}
-
-errorRate_Euclidean_cent_pca95
-```
-
-    ##  [1] 0.1425012 0.1425012 0.1449925 0.1439960 0.1420030 0.1395117 0.1340309
-    ##  [8] 0.1285501 0.1255605 0.1250623 0.1275536 0.1250623 0.1225710 0.1200797
-    ## [15] 0.1160937 0.1136024 0.1126059 0.1121076 0.1086198 0.1111111 0.1101146
-    ## [22] 0.1076233 0.1076233 0.1071251 0.1066268 0.1086198 0.1066268 0.1071251
-    ## [29] 0.1076233 0.1076233 0.1071251 0.1086198 0.1086198 0.1076233 0.1081216
-    ## [36] 0.1071251 0.1066268 0.1086198 0.1076233 0.1086198
-
-``` r
-plot(1:max_k, errorRate_Euclidean_cent_pca95,
-     type = "o", col = "red",
-     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0.04, 0.15))
-```
-
-<img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-10-1.png" width="672" />
+    ##  795.199  316.861 1115.161
 
 repeat for pca50
 
@@ -764,7 +633,6 @@ pca50 centroids
 
 system.time({
   
-
 max_k <- 40
 usps_test_pca50_pred_Euclidean_cent <- matrix(0, nrow = nrow(usps_test), ncol = max_k)
 # for each test point i
@@ -806,66 +674,47 @@ for(i in 1:nrow(usps_test)){
   }
 } 
 
-# head(cbind(usps_test_labels, as.factor(usps_test_pred_Euclidean_cent)))
-
-
 }) # end system.time
 ```
 
     ##    user  system elapsed 
-    ## 113.722  25.713 140.395
+    ## 110.094  26.856 137.467
 
-plot pca50
+</details>
+
+Calculate and plot error rates for the `max_k` k values for nopca vs
+pca95 vs pca50
 
 ``` r
-# Calculate and plot error rates for the `max_k` k values
-
 library(caret) # for function confusionMatrix
 
-errorRate_Euclidean_cent_pca50 <- numeric(max_k)
+errorRate_Euclidean_cent <- 
+  errorRate_Euclidean_cent_pca95 <- 
+    errorRate_Euclidean_cent_pca50 <- numeric(max_k)
+
+
 for(i in 1:max_k){
-  errorRate_Euclidean_cent_pca50 [i] <- 
+  errorRate_Euclidean_cent[i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pred_Euclidean_cent[, i]), 
+                        usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_cent_pca95[i] <- 
+    1 - confusionMatrix(as.factor(usps_test_pca95_pred_Euclidean_cent[, i]), 
+                        usps_test_labels)$overall["Accuracy"]
+  errorRate_Euclidean_cent_pca50[i] <- 
     1 - confusionMatrix(as.factor(usps_test_pca50_pred_Euclidean_cent[, i]), 
                         usps_test_labels)$overall["Accuracy"]
 }
 
-errorRate_Euclidean_cent_pca50
-```
-
-    ##  [1] 0.3647235 0.3647235 0.3537618 0.3457897 0.3432985 0.3418037 0.3472845
-    ##  [8] 0.3447932 0.3413054 0.3423019 0.3447932 0.3423019 0.3403089 0.3413054
-    ## [15] 0.3423019 0.3462880 0.3447932 0.3447932 0.3482810 0.3403089 0.3358246
-    ## [22] 0.3333333 0.3383159 0.3393124 0.3398107 0.3408072 0.3403089 0.3447932
-    ## [29] 0.3467862 0.3467862 0.3477828 0.3467862 0.3452915 0.3408072 0.3432985
-    ## [36] 0.3437967 0.3428002 0.3408072 0.3428002 0.3472845
-
-``` r
-plot(1:max_k, errorRate_Euclidean_cent_pca50,
-     type = "o", col = "red",
-     xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0.33, 0.37))
-```
-
-<img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-12-1.png" width="672" />
-
-plot all 3 together
-
-``` r
-# plot error rates vs k
 plot(1:max_k, errorRate_Euclidean_cent,
      type = "o", col = "red",
      xlab = "k (number of nearest neighbors used)", ylab = "Misclassification Error Rate",
-     ylim = c(0, 0.4))
+     ylim = c(0.04, 0.28))
 points(1:max_k, errorRate_Euclidean_cent_pca95, type = "o", col = "black")
 points(1:max_k, errorRate_Euclidean_cent_pca50, type = "o", col = "blue")
 legend("center", legend = c("no PCA", "PCA 95%", "PCA 50%"),
        col = c("red", "black", "blue"), lty = 1)
 ```
 
-<img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-13-1.png" width="672" />
+<img src="02-Dimension-Reduction-PCA_files/figure-gfm/unnamed-chunk-9-1.png" width="672" />
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
+-   PCA 95% increases absolute error rate

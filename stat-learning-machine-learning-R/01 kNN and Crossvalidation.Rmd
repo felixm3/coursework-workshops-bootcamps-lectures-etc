@@ -645,8 +645,6 @@ usps_test <- read_delim(
   "https://hastie.su.domains/ElemStatLearn/datasets/zip.test.gz", 
   delim = " ", col_names = FALSE, show_col_types = FALSE)
 
-# str(usps_train)
-
 usps_train <- as.matrix(usps_train)
 usps_test <- as.matrix(usps_test)
 
@@ -664,9 +662,6 @@ usps_train <- usps_train[, -257]
 # convert labels to factors
 usps_train_labels <- factor(usps_train_labels)
 usps_test_labels <- factor(usps_test_labels)
-
-str(usps_train_labels)
-str(usps_test_labels)
 
 ```
 </details>
